@@ -119,7 +119,7 @@ onMounted(() => { loadCategories(); loadGoods() })
 
 /* 彩色 Logo */
 .nav-logo {
-  display: flex; align-items: center; font-weight: 800; font-size: 22px;
+  display: flex; align-items: center; font-weight: 800; font-size: 26px;
   letter-spacing: -1px; line-height: 1;
 }
 .logo-m  { color: #ee0a24; text-shadow: 2px 2px 0 #ffcccc; }
@@ -141,7 +141,7 @@ onMounted(() => { loadCategories(); loadGoods() })
   width: 85%;
 }
 .search-wrap :deep(.van-search__content) {
-  background: #f0f0f0;
+  background: #f7f8fa;
 }
 
 .category-tabs { background: #fff; margin-bottom: 6px; }
@@ -152,7 +152,7 @@ onMounted(() => { loadCategories(); loadGoods() })
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  padding: 8px 14px;
+  padding: 8px 16px;
 }
 
 .pagination-wrap { padding: 20px 0 30px; }

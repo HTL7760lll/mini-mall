@@ -61,13 +61,13 @@ const imgSrc = computed(() =>
   position: absolute; top: 4px; left: 4px; display: flex;
 }
 
-.card-body { padding: 6px 8px 10px; }
+.card-body { padding: 4px 6px 8px; }
 
 .card-name {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  color: #222;
-  line-height: 1.35;
+  color: #333;
+  line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -76,8 +76,8 @@ const imgSrc = computed(() =>
 }
 
 .card-price {
-  display: flex; align-items: baseline; margin-top: 4px;
+  display: flex; align-items: baseline; margin-top: 3px;
 }
-.price-symbol { font-size: 11px; color: #ee0a24; font-weight: 700; }
-.price-value { font-size: 15px; color: #ee0a24; font-weight: 700; line-height: 1; }
+.price-symbol { font-size: 10px; color: #ee0a24; font-weight: 700; }
+.price-value { font-size: 14px; color: #ee0a24; font-weight: 700; line-height: 1; }
 </style>
