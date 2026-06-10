@@ -1,18 +1,15 @@
 <template>
   <div class="goods-card" @click="$emit('click')">
-    <div class="card-image">
-      <img :src="imgSrc" class="goods-img" :alt="goods.name" />
+    <div class="card-cover">
+      <img :src="imgSrc" :alt="goods.name" />
       <div class="card-tags">
         <van-tag v-if="goods.is_hot" type="danger" size="mini" round>Hot</van-tag>
         <van-tag v-if="goods.is_new" type="primary" size="mini" round style="margin-left:3px">New</van-tag>
       </div>
     </div>
-    <div class="card-body">
+    <div class="card-info">
       <div class="card-name">{{ goods.name }}</div>
-      <div class="card-price">
-        <span class="price-symbol">¥</span>
-        <span class="price-value">{{ goods.price }}</span>
-      </div>
+      <div class="card-price">¥{{ goods.price }}</div>
     </div>
   </div>
 </template>
@@ -24,60 +21,57 @@ const props = defineProps({ goods: { type: Object, required: true } })
 defineEmits(['click'])
 
 const imgSrc = computed(() =>
-  `https://picsum.photos/200/200?random=${props.goods.id}`
+  `https://picsum.photos/358/200?random=${props.goods.id}`
 )
 </script>
 
 <style scoped>
 .goods-card {
   background: #fff;
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.goods-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-}
-.goods-card:active { transform: scale(0.96); }
+.goods-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.goods-card:active { transform: scale(0.97); }
 
-.card-image {
+.card-cover {
   position: relative;
   width: 100%;
-  aspect-ratio: 1;
+  border-radius: 8px 8px 0 0;
   overflow: hidden;
-  background: #f0f0f0;
+  background: #f4f4f4;
 }
-.goods-img {
+.card-cover img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
   display: block;
+  aspect-ratio: 1.8;
+  object-fit: cover;
 }
-
 .card-tags {
-  position: absolute; top: 4px; left: 4px; display: flex;
+  position: absolute; top: 6px; left: 6px; display: flex;
 }
 
-.card-body { padding: 4px 6px 8px; }
+.card-info {
+  padding: 8px 10px 12px;
+}
 
 .card-name {
-  font-size: 11px;
-  font-weight: 600;
-  color: #333;
-  line-height: 1.3;
+  font-size: 13px;
+  font-weight: 500;
+  color: #18191c;
+  line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-align: left;
 }
 
 .card-price {
-  display: flex; align-items: baseline; margin-top: 3px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ee0a24;
+  margin-top: 6px;
 }
-.price-symbol { font-size: 10px; color: #ee0a24; font-weight: 700; }
-.price-value { font-size: 14px; color: #ee0a24; font-weight: 700; line-height: 1; }
 </style>

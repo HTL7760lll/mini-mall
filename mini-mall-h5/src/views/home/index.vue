@@ -147,12 +147,12 @@ onMounted(() => { loadCategories(); loadGoods() })
 .category-tabs { background: #fff; margin-bottom: 6px; }
 .loading-wrap { padding: 80px 0; text-align: center; }
 
-/* 3列 + 左右留白 + 间距 */
+/* 2列 (参考B站移动端) + 左右留白 */
 .goods-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  padding: 8px 16px;
+  padding: 8px 12px;
 }
 
 .pagination-wrap { padding: 20px 0 30px; }
