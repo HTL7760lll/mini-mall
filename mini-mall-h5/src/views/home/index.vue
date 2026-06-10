@@ -138,10 +138,10 @@ onMounted(() => { loadCategories(); loadGoods() })
 .category-tabs { background: #fff; margin-bottom: 6px; }
 .loading-wrap { padding: 80px 0; text-align: center; }
 
-/* auto-fill: 卡片固定最小尺寸, 自动算列数 */
+/* 4列固定 */
 .goods-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   padding: 10px 12px;
 }
