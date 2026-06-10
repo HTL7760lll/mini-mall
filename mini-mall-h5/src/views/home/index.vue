@@ -1,9 +1,21 @@
 <template>
   <div class="home-page">
-    <!-- 顶部导航 -->
-    <van-nav-bar title="Mini Mall" fixed placeholder>
+    <!-- 导航 + Logo -->
+    <van-nav-bar fixed placeholder>
+      <template #title>
+        <div class="nav-logo">
+          <span class="logo-m">M</span>
+          <span class="logo-i">i</span>
+          <span class="logo-n1">n</span>
+          <span class="logo-i2">i</span>
+          <span class="logo-space">&nbsp;</span>
+          <span class="logo-m2">M</span>
+          <span class="logo-a">a</span>
+          <span class="logo-ll">ll</span>
+        </div>
+      </template>
       <template #right>
-        <van-icon name="user-o" size="22" @click="goLogin" />
+        <van-icon name="user-o" size="20" @click="goLogin" />
       </template>
     </van-nav-bar>
 
@@ -20,22 +32,18 @@
 
     <!-- 分类标签 -->
     <div class="category-tabs">
-      <van-tabs
-        v-model:active="activeCategory"
-        swipeable animated shrink
-        @change="onCategoryChange"
-      >
+      <van-tabs v-model:active="activeCategory" swipeable animated shrink @change="onCategoryChange">
         <van-tab title="全部" :name="0" />
         <van-tab v-for="cat in categories" :key="cat.id" :title="cat.name" :name="cat.id" />
       </van-tabs>
     </div>
 
-    <!-- 加载中 -->
+    <!-- 加载 -->
     <div v-if="loading" class="loading-wrap">
       <van-loading size="24" vertical>加载中...</van-loading>
     </div>
 
-    <!-- 商品网格: 3列 -->
+    <!-- 商品网格 -->
     <div v-else-if="goodsList.length > 0" class="goods-grid">
       <GoodsCard
         v-for="item in goodsList"
@@ -45,18 +53,11 @@
       />
     </div>
 
-    <!-- 空 -->
     <van-empty v-else description="暂无商品" />
 
     <!-- 分页 -->
     <div v-if="total > pageSize" class="pagination-wrap">
-      <van-pagination
-        v-model="currentPage"
-        :total-items="total"
-        :items-per-page="pageSize"
-        mode="simple"
-        @change="onPageChange"
-      />
+      <van-pagination v-model="currentPage" :total-items="total" :items-per-page="pageSize" mode="simple" @change="onPageChange" />
     </div>
   </div>
 </template>
@@ -82,16 +83,12 @@ const loadCategories = async () => {
   try {
     const data = await getCategoryTree()
     const flat = []
-    for (const parent of data) {
-      if (parent.children?.length) {
-        for (const child of parent.children) {
-          if (child.goods_count > 0) flat.push(child)
-        }
-      }
-      if (parent.goods_count > 0) flat.push(parent)
+    for (const p of data) {
+      if (p.children?.length) for (const c of p.children) { if (c.goods_count > 0) flat.push(c) }
+      if (p.goods_count > 0) flat.push(p)
     }
     categories.value = flat
-  } catch (e) { console.error('加载分类失败:', e) }
+  } catch (e) { console.error(e) }
 }
 
 const loadGoods = async () => {
@@ -100,21 +97,17 @@ const loadGoods = async () => {
     const params = { page: currentPage.value, pageSize: pageSize }
     if (keyword.value) params.keyword = keyword.value
     if (activeCategory.value > 0) params.categoryId = activeCategory.value
-
     const data = await getGoodsPage(params)
     goodsList.value = data.records || []
     total.value = data.total || 0
-  } catch (e) {
-    console.error('加载商品失败:', e)
-  } finally {
-    loading.value = false
-  }
+  } catch (e) { console.error(e) }
+  finally { loading.value = false }
 }
 
 const onSearch = () => { currentPage.value = 1; loadGoods() }
 const onClear = () => { keyword.value = ''; currentPage.value = 1; loadGoods() }
 const onCategoryChange = () => { currentPage.value = 1; loadGoods() }
-const onPageChange = (page) => { currentPage.value = page; loadGoods() }
+const onPageChange = (p) => { currentPage.value = p; loadGoods() }
 const goDetail = (id) => router.push(`/goods/${id}`)
 const goLogin = () => router.push('/login')
 
@@ -124,21 +117,43 @@ onMounted(() => { loadCategories(); loadGoods() })
 <style scoped>
 .home-page { background: #f5f5f5; min-height: 100vh; }
 
-.search-wrap { padding: 6px 16px; background: #fff; }
-.search-wrap :deep(.van-search__content) { background: #f7f8fa; }
+/* 彩色 Logo */
+.nav-logo {
+  display: flex; align-items: center; font-weight: 800; font-size: 22px;
+  letter-spacing: -1px; line-height: 1;
+}
+.logo-m  { color: #ee0a24; text-shadow: 2px 2px 0 #ffcccc; }
+.logo-i  { color: #ff6b35; }
+.logo-n1 { color: #f7931e; }
+.logo-i2 { color: #00bcd4; }
+.logo-space { width: 4px; }
+.logo-m2 { color: #4caf50; text-shadow: 2px 2px 0 #c8e6c9; }
+.logo-a  { color: #2196f3; }
+.logo-ll { color: #9c27b0; }
+
+/* 搜索栏 - 不填满, 居左 */
+.search-wrap {
+  padding: 6px 0;
+  display: flex; justify-content: flex-start;
+}
+.search-wrap :deep(.van-search) {
+  padding: 4px 16px;
+  width: 85%;
+}
+.search-wrap :deep(.van-search__content) {
+  background: #f0f0f0;
+}
 
 .category-tabs { background: #fff; margin-bottom: 6px; }
+.loading-wrap { padding: 80px 0; text-align: center; }
 
-.loading-wrap { display: flex; justify-content: center; padding: 80px 0; }
-
+/* 3列 + 左右留白 + 间距 */
 .goods-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  padding: 8px 10px;
+  gap: 10px;
+  padding: 8px 14px;
 }
 
-.pagination-wrap {
-  display: flex; justify-content: center; padding: 20px 0 30px;
-}
+.pagination-wrap { padding: 20px 0 30px; }
 </style>
