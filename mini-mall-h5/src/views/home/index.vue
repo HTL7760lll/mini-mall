@@ -15,7 +15,10 @@
         </div>
       </template>
       <template #right>
-        <van-icon name="user-o" size="20" @click="goLogin" />
+        <div class="login-btn" @click="goLogin">
+          <van-icon name="user-o" size="18" />
+          <span>登录</span>
+        </div>
       </template>
     </van-nav-bar>
 
@@ -119,7 +122,7 @@ onMounted(() => { loadCategories(); loadGoods() })
 
 /* 彩色 Logo */
 .nav-logo {
-  display: flex; align-items: center; font-weight: 800; font-size: 26px;
+  display: flex; align-items: center; font-weight: 800; font-size: 30px;
   letter-spacing: -1px; line-height: 1;
 }
 .logo-m  { color: #ee0a24; text-shadow: 2px 2px 0 #ffcccc; }
@@ -146,5 +149,9 @@ onMounted(() => { loadCategories(); loadGoods() })
   padding: 8px 8px;
 }
 
+.login-btn {
+  display: flex; align-items: center; gap: 3px;
+  font-size: 11px; color: #666; cursor: pointer;
+}
 .pagination-wrap { padding: 20px 0 30px; }
 </style>
