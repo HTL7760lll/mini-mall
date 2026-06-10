@@ -146,7 +146,7 @@ onMounted(() => { loadCategories(); loadGoods() })
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 4px;
-  width: 66%;
+  width: 80%;
   margin: 0 auto;
 }
 
