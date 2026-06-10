@@ -141,9 +141,9 @@ onMounted(() => { loadCategories(); loadGoods() })
 /* 4列固定 */
 .goods-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  padding: 10px 12px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  padding: 8px 8px;
 }
 
 .pagination-wrap { padding: 20px 0 30px; }

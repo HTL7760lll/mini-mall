@@ -53,15 +53,14 @@ const imgSrc = computed(() =>
 .tag-hot { background: rgba(238,10,36,0.85); }
 .tag-new { background: rgba(25,137,250,0.85); left: auto; right: 3px; }
 
-.card-info { padding: 5px 6px 8px; }
+.card-info { padding: 4px 5px 6px; }
 
 .card-name {
-  font-size: 11px; color: #222; line-height: 1.3;
-  display: -webkit-box; -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical; overflow: hidden;
+  font-size: 10px; color: #333; line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 .card-price {
-  font-size: 13px; color: #ee0a24; font-weight: 700; margin-top: 3px; line-height: 1;
+  font-size: 12px; color: #ee0a24; font-weight: 700; margin-top: 2px; line-height: 1;
 }
 </style>
