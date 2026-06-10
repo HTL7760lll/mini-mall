@@ -8,6 +8,7 @@ import {
   Button, Search, Tab, Tabs, Card, Tag, Grid, GridItem,
   Image as VanImage, NavBar, Icon, Toast, Stepper,
   SubmitBar, Checkbox, Empty, Pagination, Loading, Skeleton,
+  Field, Form,
 } from 'vant'
 import 'vant/lib/index.css'
 
