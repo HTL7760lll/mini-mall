@@ -131,28 +131,25 @@ onMounted(() => { loadCategories(); loadGoods() })
 .logo-a  { color: #2196f3; }
 .logo-ll { color: #9c27b0; }
 
-/* 搜索栏 - 不填满, 居左 */
+/* 搜索栏 - 居中 */
 .search-wrap {
-  padding: 6px 0;
-  display: flex; justify-content: flex-start;
+  max-width: 600px; margin: 0 auto;
+  padding: 6px 16px;
 }
-.search-wrap :deep(.van-search) {
-  padding: 4px 16px;
-  width: 85%;
-}
-.search-wrap :deep(.van-search__content) {
-  background: #f7f8fa;
-}
+.search-wrap :deep(.van-search) { padding: 4px 0; }
+.search-wrap :deep(.van-search__content) { background: #f7f8fa; }
 
-.category-tabs { background: #fff; margin-bottom: 6px; }
+.category-tabs { background: #fff; margin-bottom: 6px; max-width: 600px; margin-left: auto; margin-right: auto; }
 .loading-wrap { padding: 80px 0; text-align: center; }
 
-/* 3列小卡片 + 大留白 */
+/* B站风格: 居中容器 + 2列 + 大间距 */
 .goods-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  padding: 10px 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 12px 16px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .pagination-wrap { padding: 20px 0 30px; }
