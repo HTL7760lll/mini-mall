@@ -146,7 +146,7 @@ onMounted(() => { loadCategories(); loadGoods() })
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 6px;
-  padding: 6px 24px;
+  padding: 6px 48px;
 }
 
 .login-btn {
