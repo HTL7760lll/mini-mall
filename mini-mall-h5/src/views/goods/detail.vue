@@ -9,6 +9,7 @@
     </div>
 
     <template v-else-if="goods">
+    <div class="detail-container">
       <!-- 大图 -->
       <div class="main-image-wrap">
         <van-image
@@ -75,6 +76,7 @@
 
       <!-- 底部安全占位 -->
       <div style="height: 80px" />
+    </div>
     </template>
 
     <!-- 空状态 -->
@@ -169,6 +171,14 @@ onMounted(loadDetail)
 .detail-page {
   background: #f5f5f5;
   min-height: 100vh;
+}
+
+/* 3/5 居中容器 */
+.detail-container {
+  width: 60%;
+  margin: 0 auto;
+  max-width: 500px;
+}
 }
 
 .loading-wrap {

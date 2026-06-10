@@ -1,36 +1,24 @@
 <template>
   <div class="home-page">
-    <!-- 导航 + Logo -->
+    <!-- 导航 + Logo + 紧凑搜索 -->
     <van-nav-bar fixed placeholder>
       <template #title>
         <div class="nav-logo">
-          <span class="logo-m">M</span>
-          <span class="logo-i">i</span>
-          <span class="logo-n1">n</span>
-          <span class="logo-i2">i</span>
+          <span class="logo-m">M</span><span class="logo-i">i</span><span class="logo-n1">n</span><span class="logo-i2">i</span>
           <span class="logo-space">&nbsp;</span>
-          <span class="logo-m2">M</span>
-          <span class="logo-a">a</span>
-          <span class="logo-ll">ll</span>
+          <span class="logo-m2">M</span><span class="logo-a">a</span><span class="logo-ll">ll</span>
         </div>
       </template>
       <template #right>
         <div class="login-btn" @click="goLogin">
-          <van-icon name="user-o" size="18" />
-          <span>登录</span>
+          <van-icon name="user-o" size="18" /><span>登录</span>
         </div>
       </template>
     </van-nav-bar>
 
-    <!-- 搜索栏 -->
+    <!-- 搜索栏: 嵌入导航下方, 紧凑 -->
     <div class="search-wrap">
-      <van-search
-        v-model="keyword"
-        placeholder="搜索商品"
-        shape="round"
-        @search="onSearch"
-        @clear="onClear"
-      />
+      <van-search v-model="keyword" placeholder="搜索" shape="round" @search="onSearch" @clear="onClear" />
     </div>
 
     <!-- 分类标签 -->
@@ -134,9 +122,9 @@ onMounted(() => { loadCategories(); loadGoods() })
 .logo-a  { color: #2196f3; }
 .logo-ll { color: #9c27b0; }
 
-.search-wrap { padding: 6px 12px; }
-.search-wrap :deep(.van-search) { padding: 4px 0; }
-.search-wrap :deep(.van-search__content) { background: #f7f8fa; }
+.search-wrap { padding: 0 16px 4px; background: #fff; }
+.search-wrap :deep(.van-search) { padding: 0; }
+.search-wrap :deep(.van-search__content) { background: #f7f8fa; height: 32px; border-radius: 16px; }
 
 .category-tabs { background: #fff; margin-bottom: 6px; }
 .loading-wrap { padding: 80px 0; text-align: center; }

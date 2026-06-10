@@ -50,8 +50,8 @@ const handleLogin = async () => {
 <style scoped>
 .login-page { min-height: 100vh; background: #f5f5f5; }
 .form-wrap { padding: 30px 28px; }
-.header-icon { text-align: center; font-size: 48px; margin-bottom: 8px; }
-.page-title { text-align: center; font-size: 22px; font-weight: 700; color: #333; margin-bottom: 4px; }
+.header-icon { text-align: center; font-size: 56px; margin-bottom: 8px; }
+.page-title { text-align: center; font-size: 26px; font-weight: 700; color: #333; margin-bottom: 4px; }
 .page-subtitle { text-align: center; font-size: 13px; color: #aaa; margin-bottom: 28px; }
 .btn-wrap { margin-top: 28px; }
 .link-wrap { text-align: center; margin-top: 22px; font-size: 14px; color: #999; }
