@@ -122,7 +122,8 @@ const loadDetail = async () => {
       const inStock = data.skus.find(s => s.stock > 0)
       if (inStock) selectedSku.value = inStock
     }
-  } catch {
+  } catch (e) {
+    console.error('加载商品详情失败:', e)
     showToast('加载失败')
   } finally {
     loading.value = false
@@ -152,8 +153,8 @@ const addCart = async () => {
       quantity: quantity.value,
     })
     showToast('已加入购物车')
-  } catch {
-    // showToast already in interceptor
+  } catch (e) {
+    console.error('加入购物车失败:', e)
   }
 }
 

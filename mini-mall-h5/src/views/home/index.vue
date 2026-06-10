@@ -97,7 +97,9 @@ const loadCategories = async () => {
       if (parent.goods_count > 0) flat.push(parent)
     }
     categories.value = flat
-  } catch { /* ignore */ }
+  } catch (e) {
+    console.error('加载分类失败:', e)
+  }
 }
 
 // 加载商品
@@ -114,8 +116,11 @@ const loadGoods = async () => {
     const data = await getGoodsPage(params)
     goodsList.value = data.records || []
     total.value = data.total || 0
-  } catch { /* ignore */ }
-  finally { loading.value = false }
+  } catch (e) {
+    console.error('加载商品失败:', e)
+  } finally {
+    loading.value = false
+  }
 }
 
 // 搜索

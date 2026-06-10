@@ -10,7 +10,7 @@ class GoodsSkuSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
-    goods_count = serializers.SerializerMethodField()
+    goods_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = GoodsCategory
@@ -19,9 +19,6 @@ class CategorySerializer(serializers.ModelSerializer):
     def get_children(self, obj):
         children = obj.children.filter(status=1, deleted=False).order_by('sort')
         return CategorySerializer(children, many=True).data if children.exists() else []
-
-    def get_goods_count(self, obj):
-        return Goods.objects.filter(category=obj, status=1, deleted=False).count()
 
 
 class GoodsListSerializer(serializers.ModelSerializer):

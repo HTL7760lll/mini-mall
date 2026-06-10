@@ -8,6 +8,7 @@ from rest_framework.response import Response
 
 from apps.member.models import Address
 from apps.cart.models import Cart
+from apps.goods.models import GoodsSku, Goods
 from .models import Order, OrderDetail
 from .serializers import OrderSerializer, OrderDetailSerializer, OrderSubmitSerializer
 
@@ -39,38 +40,43 @@ def order_submit(request):
         return Response({'code': 3004, 'msg': '请先选择商品'}, status=400)
 
     with transaction.atomic():
-        total_price = Decimal('0')
-        details = []
+        try:
+            total_price = Decimal('0')
+            details = []
 
-        for cart in cart_items:
-            sku = cart.sku
-            goods = cart.goods
+            for cart in cart_items:
+                # 悲观锁锁定SKU行，防止并发超卖
+                sku = GoodsSku.objects.select_for_update().get(id=cart.sku_id)
+                goods = Goods.objects.select_for_update().get(id=cart.goods_id)
 
-            if goods.status == 0:
-                return Response({'code': 400, 'msg': f'商品【{goods.name}】已下架'}, status=400)
-            if sku.stock < cart.quantity:
-                return Response({'code': 3003, 'msg': f'商品【{goods.name}】{sku.specs} 库存不足'}, status=400)
+                if goods.status == 0:
+                    raise ValueError(f'商品【{goods.name}】已下架')
+                if sku.stock < cart.quantity:
+                    raise ValueError(f'商品【{goods.name}】{sku.specs} 库存不足')
 
-            item_total = sku.price * cart.quantity
-            total_price += item_total
+                item_total = sku.price * cart.quantity
+                total_price += item_total
 
-            detail = OrderDetail(
-                goods=goods, sku=sku,
-                goods_name=goods.name,
-                goods_image=goods.main_image or '',
-                sku_specs=sku.specs,
-                price=sku.price,
-                quantity=cart.quantity,
-                total_price=item_total,
-            )
-            details.append(detail)
+                detail = OrderDetail(
+                    goods=goods, sku=sku,
+                    goods_name=goods.name,
+                    goods_image=goods.main_image or '',
+                    sku_specs=sku.specs,
+                    price=sku.price,
+                    quantity=cart.quantity,
+                    total_price=item_total,
+                )
+                details.append(detail)
 
-            # 扣库存
-            sku.stock -= cart.quantity
-            sku.save()
-            goods.stock -= cart.quantity
-            goods.sales = (goods.sales or 0) + cart.quantity
-            goods.save()
+                # 扣库存
+                sku.stock -= cart.quantity
+                sku.save()
+                goods.stock -= cart.quantity
+                goods.sales = (goods.sales or 0) + cart.quantity
+                goods.save()
+
+        except ValueError as e:
+            return Response({'code': 400, 'msg': str(e)}, status=400)
 
         # 生成订单号
         order_no = datetime.now().strftime('%Y%m%d%H%M%S') + str(uuid.uuid4().int)[:6]

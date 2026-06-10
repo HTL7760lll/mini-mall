@@ -1,4 +1,4 @@
-from rest_framework import filters
+from django.db.models import Count, Q
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -12,7 +12,9 @@ from .serializers import CategorySerializer, GoodsListSerializer, GoodsDetailSer
 @permission_classes([AllowAny])
 def category_tree(request):
     """商品分类树"""
-    roots = GoodsCategory.objects.filter(parent__isnull=True, status=1, deleted=False).order_by('sort')
+    roots = GoodsCategory.objects.filter(parent__isnull=True, status=1, deleted=False) \
+        .annotate(goods_count=Count('goods', filter=Q(goods__status=1, goods__deleted=False))) \
+        .prefetch_related('children').order_by('sort')
     return Response({'code': 200, 'msg': 'success', 'data': CategorySerializer(roots, many=True).data})
 
 
@@ -96,5 +98,21 @@ def goods_new(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def goods_search(request):
-    """商品搜索"""
-    return goods_list(request)  # 同一套逻辑
+    """商品搜索 — 独立于 goods_list"""
+    keyword = request.query_params.get('keyword', '')
+    queryset = Goods.objects.filter(status=1, deleted=False, name__icontains=keyword)
+
+    paginator = GoodsPagination()
+    page = paginator.paginate_queryset(queryset.order_by('-sales'), request)
+    serializer = GoodsListSerializer(page, many=True)
+
+    return Response({
+        'code': 200, 'msg': 'success',
+        'data': {
+            'total': paginator.page.paginator.count,
+            'pages': paginator.page.paginator.num_pages,
+            'current': paginator.page.number,
+            'size': paginator.page_size,
+            'records': serializer.data,
+        }
+    })
