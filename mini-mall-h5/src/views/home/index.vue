@@ -131,25 +131,19 @@ onMounted(() => { loadCategories(); loadGoods() })
 .logo-a  { color: #2196f3; }
 .logo-ll { color: #9c27b0; }
 
-/* 搜索栏 - 居中 */
-.search-wrap {
-  max-width: 600px; margin: 0 auto;
-  padding: 6px 16px;
-}
+.search-wrap { padding: 6px 12px; }
 .search-wrap :deep(.van-search) { padding: 4px 0; }
 .search-wrap :deep(.van-search__content) { background: #f7f8fa; }
 
-.category-tabs { background: #fff; margin-bottom: 6px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.category-tabs { background: #fff; margin-bottom: 6px; }
 .loading-wrap { padding: 80px 0; text-align: center; }
 
-/* B站风格: 居中容器 + 2列 + 大间距 */
+/* auto-fill: 卡片固定最小尺寸, 自动算列数 */
 .goods-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  padding: 12px 16px;
-  max-width: 600px;
-  margin: 0 auto;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
+  padding: 10px 12px;
 }
 
 .pagination-wrap { padding: 20px 0 30px; }
