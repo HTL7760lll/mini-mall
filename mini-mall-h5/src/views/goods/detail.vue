@@ -154,6 +154,7 @@ onMounted(loadDetail)
 /* 左右两栏 */
 .detail-body {
   display: flex; gap: 24px; padding: 20px; max-width: 960px;
+  margin: 0 auto;
 }
 .left-panel { flex-shrink: 0; width: 360px; }
 .main-img { width: 100%; border-radius: 6px; background: #0e1a26; display: block; }
