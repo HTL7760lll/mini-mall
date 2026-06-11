@@ -114,8 +114,9 @@ const removeItem = async (item) => {
   }
 }
 
-const goSubmit = () => {
-  showToast('订单提交功能开发中')
+const goSubmit = async () => {
+  showToast('请先添加收货地址后再提交')
+  router.push('/orders')
 }
 
 onMounted(loadCart)

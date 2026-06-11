@@ -11,13 +11,24 @@
     <div v-if="loading" class="loading"><div class="spin" /></div>
 
     <template v-else-if="order">
-      <!-- 状态卡片 -->
+      <!-- 状态卡片 + 进度条 -->
       <div class="status-card" :class="'sc-'+order.order_status">
-        <div class="sc-icon">
-          {{ order.order_status === 0 ? '⏳' : order.order_status === 1 ? '📦' : order.order_status === 2 ? '🚚' : order.order_status === 3 ? '✅' : '✖️' }}
-        </div>
-        <div class="sc-text">{{ order.order_status_desc }}</div>
         <div class="sc-no">订单号: {{ order.order_no }}</div>
+
+        <!-- 进度条 (非取消态) -->
+        <div class="stepper" v-if="order.order_status !== 4 && order.order_status !== 5">
+          <div class="step" v-for="(s, i) in steps" :key="i" :class="{done: i <= currentStep}">
+            <div class="step-dot">{{ i <= currentStep ? '✓' : i + 1 }}</div>
+            <div class="step-label">{{ s }}</div>
+          </div>
+          <div class="stepper-line">
+            <div class="line-fill" :style="{width: currentStep / (steps.length-1) * 100 + '%'}" />
+          </div>
+        </div>
+
+        <!-- 已取消 -->
+        <div class="sc-text cancel" v-else>订单已取消</div>
+        <div class="sc-text" v-if="order.order_status < 4">{{ steps[currentStep] || order.order_status_desc }}</div>
       </div>
 
       <!-- 地址 -->
@@ -68,7 +79,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { showToast } from 'vant'
 import request from '../../api/request'
@@ -78,6 +89,17 @@ const router = useRouter()
 const order = ref(null)
 const details = ref([])
 const loading = ref(false)
+
+const steps = ['待付款', '待发货', '待收货', '已完成']
+const currentStep = computed(() => {
+  if (!order.value) return 0
+  const s = order.value.order_status
+  if (s === 0) return 0
+  if (s === 1) return 1
+  if (s === 2) return 2
+  if (s === 3) return 3
+  return 0
+})
 
 const loadDetail = async () => {
   loading.value = true
@@ -146,7 +168,26 @@ onMounted(loadDetail)
 .sc-2 { border-color: #ffd700; } .sc-3 { border-color: #a4d007; } .sc-4,.sc-5 { border-color: #3d4f5f; }
 .sc-icon { font-size: 36px; margin-bottom: 6px; }
 .sc-text { font-size: 18px; color: #acb7c3; font-weight: 700; }
-.sc-no { font-size: 12px; color: #4f6378; margin-top: 6px; }
+.sc-text.cancel { color: #eb6f22; }
+.sc-no { font-size: 12px; color: #4f6378; margin-bottom: 16px; }
+
+/* 进度条 Stepper */
+.stepper { position: relative; display: flex; justify-content: space-between; padding: 0 10px; margin-top: 8px; }
+.step { display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 1; }
+.step-dot {
+  width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: #1a2a3a; border: 2px solid #1e2f40; color: #4f6378; font-size: 12px; font-weight: 700;
+  transition: all .3s;
+}
+.step.done .step-dot { background: #a4d007; border-color: #a4d007; color: #1b2838; }
+.step-label { font-size: 10px; color: #4f6378; }
+.step.done .step-label { color: #a4d007; }
+
+.stepper-line {
+  position: absolute; top: 14px; left: 10px; right: 10px; height: 2px;
+  background: #1e2f40; z-index: 0;
+}
+.line-fill { height: 100%; background: #a4d007; transition: width .5s ease; border-radius: 1px; }
 
 .section {
   margin: 0 12px 12px; background: #16202d; border: 1px solid #1e2f40;
