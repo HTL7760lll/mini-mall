@@ -109,7 +109,7 @@ def address_list(request):
     if request.method == 'GET':
         addresses = Address.objects.filter(member=request.user, deleted=False)
         serializer = AddressSerializer(addresses, many=True)
-        return Response({'code': 200, 'msg': 'success', 'data': serializer.data})
+        return Response({'code': 200, 'msg': 'success', 'data': {'records': serializer.data}})
 
     if request.method == 'POST':
         serializer = AddressSerializer(data=request.data, context={'request': request})

@@ -11,7 +11,7 @@ from .serializers import CommentSerializer
 def goods_comments(request, goods_id):
     """商品评价列表"""
     comments = Comment.objects.filter(goods_id=goods_id, is_show=True, deleted=False)
-    return Response({'code': 200, 'msg': 'success', 'data': CommentSerializer(comments, many=True).data})
+    return Response({'code': 200, 'msg': 'success', 'data': {'records': CommentSerializer(comments, many=True).data}})
 
 
 @api_view(['POST'])

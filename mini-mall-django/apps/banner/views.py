@@ -11,4 +11,4 @@ from .serializers import BannerSerializer
 def banner_list(request):
     """获取启用Banner列表"""
     banners = Banner.objects.filter(status=1, deleted=False).order_by('sort')
-    return Response({'code': 200, 'msg': 'success', 'data': BannerSerializer(banners, many=True).data})
+    return Response({'code': 200, 'msg': 'success', 'data': {'records': BannerSerializer(banners, many=True).data}})

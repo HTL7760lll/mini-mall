@@ -96,7 +96,7 @@ def goods_detail(request, pk):
 def goods_hot(request):
     """热卖推荐"""
     goods = Goods.objects.filter(status=1, is_hot=True, deleted=False).order_by('-sales')[:10]
-    return Response({'code': 200, 'msg': 'success', 'data': GoodsListSerializer(goods, many=True).data})
+    return Response({'code': 200, 'msg': 'success', 'data': {'records': GoodsListSerializer(goods, many=True).data}})
 
 
 @api_view(['GET'])
@@ -104,7 +104,7 @@ def goods_hot(request):
 def goods_new(request):
     """新品推荐"""
     goods = Goods.objects.filter(status=1, is_new=True, deleted=False).order_by('-created_at')[:10]
-    return Response({'code': 200, 'msg': 'success', 'data': GoodsListSerializer(goods, many=True).data})
+    return Response({'code': 200, 'msg': 'success', 'data': {'records': GoodsListSerializer(goods, many=True).data}})
 
 
 # ====== 搜索接口 ======

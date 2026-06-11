@@ -11,7 +11,8 @@ def cart_list(request):
     """购物车列表"""
     carts = Cart.objects.filter(member=request.user).select_related('goods', 'sku')
     serializer = CartSerializer(carts, many=True)
-    return Response({'code': 200, 'msg': 'success', 'data': serializer.data})
+    return Response({'code': 200, 'msg': 'success',
+        'data': {'records': serializer.data}})
 
 
 @api_view(['POST'])

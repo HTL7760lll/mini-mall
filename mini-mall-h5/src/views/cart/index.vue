@@ -82,7 +82,7 @@ const loadCart = async () => {
   loading.value = true
   try {
     const data = await request.get('/cart/list/')
-    cartItems.value = data || []
+    cartItems.value = data?.records || []
   } catch (e) {
     if (e.response?.status === 401) {
       needLogin.value = true
