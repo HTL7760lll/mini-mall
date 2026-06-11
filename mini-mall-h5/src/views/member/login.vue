@@ -1,23 +1,21 @@
 <template>
-  <div class="login-page">
-    <van-nav-bar title="用户登录" left-text="返回" left-arrow @click-left="router.back" />
-
-    <div class="form-wrap">
-      <div class="header-icon">👤</div>
-      <div class="page-title">登录 Mini Mall</div>
-      <div class="page-subtitle">欢迎回来，请登录您的账号</div>
-
-      <van-field v-model="form.username" label="用户名" placeholder="请输入用户名" clearable size="large" />
-      <van-field v-model="form.password" label="密码" type="password" placeholder="请输入密码" size="large" />
-
-      <div class="btn-wrap">
-        <van-button type="danger" round block size="large" :loading="loading" @click="handleLogin">
-          登 录
-        </van-button>
+  <div class="login-dark">
+    <div class="login-card">
+      <div class="login-logo">
+        <span class="l-m">M</span><span class="l-i">i</span><span class="l-n">n</span><span class="l-i2">i</span>
+        <span class="l-m2">M</span><span class="l-a">a</span><span class="l-ll">ll</span>
       </div>
+      <div class="login-title">用户登录</div>
 
-      <div class="link-wrap">
-        还没有账号？<span class="link" @click="router.push('/register')">立即注册</span>
+      <input class="field" v-model="form.username" placeholder="USERNAME" />
+      <input class="field" v-model="form.password" type="password" placeholder="PASSWORD" />
+
+      <button class="submit-btn" :disabled="loading" @click="handleLogin">
+        {{ loading ? '...' : '登 录' }}
+      </button>
+
+      <div class="link-text">
+        还没有账号？<span class="link" @click="router.push('/register')">REGISTER</span>
       </div>
     </div>
   </div>
@@ -42,18 +40,37 @@ const handleLogin = async () => {
     localStorage.setItem('user', JSON.stringify(data))
     showToast('登录成功')
     router.replace('/')
-  } catch (e) { console.error('登录失败:', e) }
+  } catch (e) { console.error(e) }
   finally { loading.value = false }
 }
 </script>
 
 <style scoped>
-.login-page { min-height: 100vh; background: #f5f5f5; }
-.form-wrap { padding: 30px 28px; }
-.header-icon { text-align: center; font-size: 56px; margin-bottom: 8px; }
-.page-title { text-align: center; font-size: 26px; font-weight: 700; color: #333; margin-bottom: 4px; }
-.page-subtitle { text-align: center; font-size: 13px; color: #aaa; margin-bottom: 28px; }
-.btn-wrap { margin-top: 28px; }
-.link-wrap { text-align: center; margin-top: 22px; font-size: 14px; color: #999; }
-.link { color: #1989fa; cursor: pointer; }
+.login-dark { min-height:100vh; background:#0d1117; display:flex; align-items:center; justify-content:center; }
+.login-card { width: 320px; padding: 40px 32px; }
+
+.login-logo { text-align:center; font-size:28px; font-weight:800; letter-spacing:-1px; margin-bottom: 4px; }
+.l-m{color:#ff6b35}.l-i,.l-i2{color:#00d4ff}.l-n{color:#ffd700}
+.l-m2{color:#4caf50}.l-a{color:#2196f3}.l-ll{color:#9c27b0}
+
+.login-title { text-align:center; font-size:13px; color:#484f58; margin-bottom: 32px; letter-spacing:4px; }
+
+.field {
+  width:100%; padding: 10px 0; margin-bottom: 16px;
+  background:none; border:none; border-bottom:1px solid #21262d;
+  outline:none; color:#c9d1d9; font-size:14px;
+}
+.field::placeholder { color:#30363d; letter-spacing:2px; }
+.field:focus { border-bottom-color:#ff6b35; }
+
+.submit-btn {
+  width:100%; margin-top:12px; padding:10px 0;
+  background:#ff6b35; color:#0d1117; border:none; font-size:15px; font-weight:700;
+  cursor:pointer; transition:opacity .15s;
+}
+.submit-btn:hover { opacity:.9; }
+.submit-btn:disabled { opacity:.5; }
+
+.link-text { text-align:center; margin-top:20px; font-size:12px; color:#484f58; }
+.link { color:#00d4ff; cursor:pointer; }
 </style>

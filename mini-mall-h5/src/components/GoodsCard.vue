@@ -1,66 +1,65 @@
 <template>
   <div class="goods-card" @click="$emit('click')">
-    <div class="card-cover">
+    <div class="card-img">
       <img :src="imgSrc" :alt="goods.name" />
-      <span v-if="goods.is_hot" class="tag-hot">H</span>
-      <span v-if="goods.is_new" class="tag-new">N</span>
+      <span v-if="goods.is_hot" class="badge badge-hot">H</span>
+      <span v-if="goods.is_new" class="badge badge-new">N</span>
     </div>
-    <div class="card-info">
+    <div class="card-meta">
       <div class="card-name">{{ goods.name }}</div>
-      <div class="card-price">¥{{ goods.price }}</div>
+      <div class="card-row">
+        <span class="card-price">¥{{ goods.price }}</span>
+        <span class="card-sales" v-if="goods.sales">{{ fmtSales(goods.sales) }}</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-
 const props = defineProps({ goods: { type: Object, required: true } })
 defineEmits(['click'])
 
-const imgSrc = computed(() =>
-  `https://picsum.photos/120/120?random=${props.goods.id}`
-)
+const imgSrc = computed(() => `https://picsum.photos/200/200?random=${props.goods.id}`)
+const fmtSales = (n) => {
+  if (n >= 10000) return (n/10000).toFixed(1)+'w'
+  if (n >= 1000) return (n/1000).toFixed(1)+'k'
+  return n
+}
 </script>
 
 <style scoped>
 .goods-card {
-  background: #fff;
-  border-radius: 6px;
-  overflow: hidden;
+  background: #0d1117;
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: background .15s;
+  overflow: hidden;
 }
-.goods-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-}
-.goods-card:active { transform: scale(0.96); }
+.goods-card:hover { background: #161b22; }
 
-.card-cover {
-  position: relative; background: #f2f2f2;
+.card-img {
+  position: relative;
+  background: #161b22;
 }
-.card-cover img {
+.card-img img {
   width: 100%; aspect-ratio: 1; object-fit: cover; display: block;
 }
 
-.tag-hot, .tag-new {
-  position: absolute; top: 3px; left: 3px;
-  color: #fff; font-size: 9px; font-weight: 700;
-  padding: 1px 4px; border-radius: 2px; line-height: 1.2;
+.badge {
+  position: absolute; top: 4px; left: 4px;
+  font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 2px;
 }
-.tag-hot { background: rgba(238,10,36,0.85); }
-.tag-new { background: rgba(25,137,250,0.85); left: auto; right: 3px; }
+.badge-hot { background: #ff6b35; color: #0d1117; }
+.badge-new { background: #00d4ff; color: #0d1117; left: auto; right: 4px; }
 
-.card-info { padding: 2px 4px 4px; }
+.card-meta { padding: 6px 8px 8px; }
 
 .card-name {
-  font-size: 9px; color: #333; line-height: 1.2;
+  font-size: 12px; color: #c9d1d9; line-height: 1.3;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-.card-price {
-  font-size: 11px; color: #ee0a24; font-weight: 700; margin-top: 1px; line-height: 1;
-}
+.card-row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px; }
+.card-price { font-size: 14px; color: #ff6b35; font-weight: 700; }
+.card-sales { font-size: 10px; color: #484f58; }
 </style>
