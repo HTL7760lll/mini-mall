@@ -22,9 +22,15 @@ def cart_add(request):
         return Response({'code': 400, 'msg': str(serializer.errors)}, status=400)
 
     data = serializer.validated_data
-    sku = GoodsSku.objects.get(id=data['sku_id'])
+    sku = GoodsSku.objects.get(id=data['sku_id'], goods_id=data['goods_id'])
     if sku.status == 0:
         return Response({'code': 400, 'msg': '该规格已下架'}, status=400)
+
+    # 检查总数量是否超过库存
+    existing = Cart.objects.filter(member=request.user, sku_id=data['sku_id']).first()
+    total_qty = (existing.quantity if existing else 0) + data['quantity']
+    if total_qty > sku.stock:
+        return Response({'code': 3003, 'msg': '库存不足，请等待补货'}, status=400)
 
     cart, created = Cart.objects.get_or_create(
         member=request.user,
@@ -51,13 +57,15 @@ def cart_update(request):
 
     data = serializer.validated_data
     try:
-        cart = Cart.objects.get(id=data['cart_id'], member=request.user)
+        cart = Cart.objects.select_related('sku').get(id=data['cart_id'], member=request.user)
     except Cart.DoesNotExist:
         return Response({'code': 400, 'msg': '购物车项不存在'}, status=404)
 
     if data['quantity'] <= 0:
         cart.delete()
     else:
+        if data['quantity'] > cart.sku.stock:
+            return Response({'code': 3003, 'msg': '库存不足，请等待补货'}, status=400)
         cart.quantity = data['quantity']
         cart.save()
 
