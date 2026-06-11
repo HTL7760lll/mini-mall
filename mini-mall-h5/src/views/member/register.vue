@@ -1,22 +1,33 @@
 <template>
-  <div class="register-page">
-    <van-nav-bar title="注册" left-text="返回" left-arrow @click-left="router.back" />
+  <div class="login-page">
+    <div class="login-box">
+      <div class="logo">
+        <span class="c-o">M</span><span class="c-c">i</span><span class="c-y">n</span><span class="c-c">i</span>
+        <span class="c-g">M</span><span class="c-b">a</span><span class="c-p">ll</span>
+      </div>
+      <div class="title">CREATE ACCOUNT</div>
+      <div class="subtitle">注册新账号</div>
 
-    <div class="form-wrap">
-      <div class="logo">创建账号</div>
-
-      <van-field v-model="form.username" label="用户名" placeholder="3-20位字母或数字" clearable />
-      <van-field v-model="form.password" label="密码" type="password" placeholder="6-20位密码" />
-      <van-field v-model="form.nickname" label="昵称" placeholder="选填" clearable />
-
-      <div class="btn-wrap">
-        <van-button type="danger" round block size="large" :loading="loading" @click="handleRegister">
-          注 册
-        </van-button>
+      <div class="field-wrap">
+        <label class="field-label">NAME（姓名）</label>
+        <input v-model="form.name" class="field" placeholder="您的姓名" />
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">EMAIL（邮箱）</label>
+        <input v-model="form.email" type="email" class="field" placeholder="your@email.com" />
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">PASSWORD（密码）</label>
+        <input v-model="form.password" type="password" class="field" placeholder="至少6位密码" @keyup.enter="handleRegister" />
       </div>
 
-      <div class="link-wrap">
-        已有账号？<span class="link" @click="router.push('/login')">立即登录</span>
+      <button class="btn-login" :disabled="loading" @click="handleRegister">
+        {{ loading ? 'CREATING...' : 'CREATE ACCOUNT' }}
+      </button>
+
+      <div class="link-row">
+        <span class="link" @click="router.push('/login')">ALREADY HAVE ACCOUNT</span>
+        <span class="link" @click="router.push('/')">BACK</span>
       </div>
     </div>
   </div>
@@ -30,40 +41,57 @@ import request from '../../api/request'
 
 const router = useRouter()
 const loading = ref(false)
-const form = reactive({ username: '', password: '', nickname: '' })
+const form = reactive({ name: '', email: '', password: '' })
 
 const handleRegister = async () => {
-  if (!form.username || !form.password) {
-    showToast('用户名和密码不能为空')
-    return
-  }
-  if (form.username.length < 3) { showToast('用户名至少3位'); return }
+  if (!form.name || !form.email || !form.password) { showToast('请填写完整信息'); return }
   if (form.password.length < 6) { showToast('密码至少6位'); return }
-
   loading.value = true
   try {
-    const data = await request.post('/member/register/', {
-      username: form.username,
-      password: form.password,
-      nickname: form.nickname || form.username,
-    })
+    const data = await request.post('/member/register/', form)
     localStorage.setItem('token', data.token)
     localStorage.setItem('user', JSON.stringify(data))
     showToast('注册成功')
     router.replace('/')
-  } catch (e) {
-    console.error('注册失败:', e)
-  } finally {
-    loading.value = false
-  }
+  } catch (e) { console.error(e) }
+  finally { loading.value = false }
 }
 </script>
 
 <style scoped>
-.register-page { min-height: 100vh; background: #f5f5f5; }
-.form-wrap { padding: 40px 24px; }
-.logo { text-align: center; font-size: 24px; font-weight: 700; color: #333; margin-bottom: 32px; }
-.btn-wrap { margin-top: 24px; }
-.link-wrap { text-align: center; margin-top: 20px; font-size: 14px; color: #999; }
-.link { color: #1989fa; cursor: pointer; }
+.login-page {
+  min-height: 100vh; background: #1b2838;
+  display: flex; align-items: center; justify-content: center;
+}
+.login-box { width: 340px; padding: 40px 0; }
+
+.logo { text-align: center; font-size: 26px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+.c-o{color:#eb6f22}.c-c{color:#67c1f5}.c-y{color:#d4b83b}
+.c-g{color:#5c7e10}.c-b{color:#2f7798}.c-p{color:#76428a}
+
+.title { text-align: center; font-size: 18px; color: #acb7c3; font-weight: 600; letter-spacing: 2px; margin-top: 16px; }
+.subtitle { text-align: center; font-size: 12px; color: #4f6378; margin-top: 4px; margin-bottom: 32px; }
+
+.field-wrap { margin-bottom: 18px; }
+.field-label { display: block; font-size: 10px; color: #4f6378; letter-spacing: 2px; margin-bottom: 6px; }
+.field {
+  width: 100%; padding: 10px 12px;
+  background: #16202d; border: 1px solid #1e2f40; border-radius: 3px;
+  outline: none; color: #acb7c3; font-size: 14px;
+}
+.field:focus { border-color: #67c1f5; }
+.field::placeholder { color: #2a3a4a; }
+
+.btn-login {
+  width: 100%; margin-top: 8px; padding: 12px 0;
+  background: linear-gradient(135deg, #67c1f5, #2f7798); border: none;
+  color: #fff; font-size: 14px; font-weight: 600; letter-spacing: 2px;
+  cursor: pointer; border-radius: 3px; transition: opacity .15s;
+}
+.btn-login:hover { opacity: .9; }
+.btn-login:disabled { opacity: .5; cursor: not-allowed; }
+
+.link-row { display: flex; justify-content: space-between; margin-top: 24px; }
+.link { font-size: 11px; color: #4f6378; cursor: pointer; letter-spacing: 1px; }
+.link:hover { color: #67c1f5; }
 </style>

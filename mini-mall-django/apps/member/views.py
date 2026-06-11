@@ -33,7 +33,7 @@ def register(request):
         'data': {
             'token': tokens['token'],
             'userId': user.id,
-            'username': user.username,
+            'email': user.email,
             'nickname': user.nickname,
             'role': user.role,
         }
@@ -47,12 +47,17 @@ def login(request):
     if not serializer.is_valid():
         return Response({'code': 400, 'msg': str(serializer.errors)}, status=400)
 
-    username = serializer.validated_data['username']
+    email = serializer.validated_data['email']
     password = serializer.validated_data['password']
-    user = authenticate(username=username, password=password)
 
-    if not user:
-        return Response({'code': 1002, 'msg': '用户名或密码错误'}, status=400)
+    # 用 email 查找用户
+    try:
+        user = Member.objects.get(email=email)
+        if not user.check_password(password):
+            return Response({'code': 1002, 'msg': '邮箱或密码错误'}, status=400)
+    except Member.DoesNotExist:
+        return Response({'code': 1002, 'msg': '邮箱或密码错误'}, status=400)
+
     if user.status == 0:
         return Response({'code': 1004, 'msg': '账号已被禁用'}, status=400)
 
@@ -62,7 +67,7 @@ def login(request):
         'data': {
             'token': tokens['token'],
             'userId': user.id,
-            'username': user.username,
+            'email': user.email,
             'nickname': user.nickname,
             'avatar': user.avatar,
             'role': user.role,

@@ -4,36 +4,42 @@ from .models import Member, Address
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(min_length=6, max_length=20, write_only=True)
+    name = serializers.CharField(source='nickname', required=True)
 
     class Meta:
         model = Member
-        fields = ['id', 'username', 'password', 'nickname', 'phone']
-        extra_kwargs = {'nickname': {'required': False}, 'phone': {'required': False}}
+        fields = ['id', 'email', 'name', 'password']
+        extra_kwargs = {'email': {'required': True}}
 
-    def validate_username(self, value):
-        if Member.objects.filter(username=value).exists():
-            raise serializers.ValidationError('用户名已存在')
+    def validate_email(self, value):
+        if Member.objects.filter(email=value).exists():
+            raise serializers.ValidationError('该邮箱已被注册')
         return value
 
     def create(self, validated_data):
+        from .models import Member
         password = validated_data.pop('password')
-        nickname = validated_data.pop('nickname', None) or validated_data['username']
-        member = Member.objects.create(**validated_data)
-        member.nickname = nickname
+        email = validated_data.pop('email')
+        username = email.split('@')[0]
+        base = username; i = 1
+        while Member.objects.filter(username=username).exists():
+            username = f'{base}{i}'; i += 1
+
+        member = Member.objects.create(username=username, email=email, **validated_data)
         member.set_password(password)
         member.save()
         return member
 
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    email = serializers.EmailField()
     password = serializers.CharField()
 
 
 class MemberInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
-        fields = ['id', 'username', 'nickname', 'avatar', 'gender', 'phone', 'role', 'status']
+        fields = ['id', 'email', 'nickname', 'avatar', 'gender', 'phone', 'role', 'status']
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -45,7 +51,6 @@ class AddressSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         member = self.context['request'].user
-        # 如果设为默认，先取消其他默认
         if validated_data.get('is_default'):
             Address.objects.filter(member=member, is_default=True).update(is_default=False)
         return Address.objects.create(member=member, **validated_data)
