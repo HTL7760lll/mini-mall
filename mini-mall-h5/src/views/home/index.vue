@@ -175,20 +175,25 @@ onMounted(() => { loadCategories(); loadGoods() })
 /* ===== ITEM GRID ===== */
 .item-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 6px;
-  padding: 10px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 12px;
 }
 
 .grid-card {
   background: #1a2a3a;
-  border: 1px solid transparent;
-  border-radius: 3px;
+  border: 1px solid #1e3348;
+  border-radius: 4px;
   overflow: hidden;
   cursor: pointer;
-  transition: all .12s;
+  transition: all 0.2s ease;
 }
-.grid-card:hover { background: #1e3348; border-color: #2a4a5e; }
+.grid-card:hover {
+  background: #1e3348;
+  border-color: #67c1f5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.3);
+}
 
 .gc-img {
   position: relative;
@@ -199,23 +204,25 @@ onMounted(() => { loadCategories(); loadGoods() })
 }
 
 .tag-hot {
-  position: absolute; top: 4px; left: 4px;
-  background: #eb6f22; color: #1b2838; font-size: 9px;
-  padding: 1px 5px; border-radius: 2px; font-weight: 700;
+  position: absolute; top: 5px; left: 5px;
+  background: #eb6f22; color: #0d1117; font-size: 10px;
+  padding: 2px 7px; border-radius: 2px; font-weight: 700;
 }
 .tag-new {
-  position: absolute; top: 4px; right: 4px;
-  background: #67c1f5; color: #1b2838; font-size: 9px;
-  padding: 1px 5px; border-radius: 2px; font-weight: 700;
+  position: absolute; top: 5px; right: 5px;
+  background: #67c1f5; color: #0d1117; font-size: 10px;
+  padding: 2px 7px; border-radius: 2px; font-weight: 700;
 }
 
-.gc-info { padding: 6px 8px 8px; }
+.gc-info { padding: 8px 10px 10px; }
 .gc-name {
-  font-size: 12px; color: #acb7c3; line-height: 1.3;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: 13px; color: #acb7c3; line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+  min-height: 34px;
 }
-.gc-row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px; }
-.gc-price { font-size: 13px; color: #a4d007; font-weight: 600; }
+.gc-row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px; }
+.gc-price { font-size: 15px; color: #a4d007; font-weight: 600; }
 .gc-sales { font-size: 10px; color: #3d4f5f; }
 
 .pagination-wrap { padding: 16px 0 32px; }
