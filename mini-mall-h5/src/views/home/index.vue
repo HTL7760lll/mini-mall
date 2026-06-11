@@ -294,7 +294,7 @@ onMounted(() => { loadCategories(); loadGoods(); checkLogin() })
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
-  padding: 12px;
+  padding: 30px;
 }
 
 .grid-card {
