@@ -38,28 +38,20 @@
       <!-- 加载 -->
       <div v-if="loading" class="loading"><div class="spin" /></div>
 
-      <!-- 列表 -->
-      <div v-else class="item-list">
-        <div class="list-header">
-          <span class="h-img">ITEM</span>
-          <span class="h-name">NAME</span>
-          <span class="h-price">PRICE</span>
-        </div>
-        <div class="item-row" v-for="item in goodsList" :key="item.id" @click="goDetail(item.id)">
-          <div class="i-img">
-            <img :src="`https://picsum.photos/100/100?random=${item.id}`" :alt="item.name" />
+      <!-- 格子列表 -->
+      <div v-else class="item-grid">
+        <div class="grid-card" v-for="item in goodsList" :key="item.id" @click="goDetail(item.id)">
+          <div class="gc-img">
+            <img :src="`https://picsum.photos/160/120?random=${item.id}`" :alt="item.name" />
+            <span v-if="item.is_hot" class="tag-hot">HOT</span>
+            <span v-if="item.is_new" class="tag-new">NEW</span>
           </div>
-          <div class="i-info">
-            <div class="i-name">{{ item.name }}</div>
-            <div class="i-meta">
-              <span v-if="item.is_hot" class="tag-hot">HOT</span>
-              <span v-if="item.is_new" class="tag-new">NEW</span>
-              <span class="i-cat">{{ item.category_name }}</span>
+          <div class="gc-info">
+            <div class="gc-name">{{ item.name }}</div>
+            <div class="gc-row">
+              <span class="gc-price">¥{{ item.price }}</span>
+              <span class="gc-sales" v-if="item.sales">{{ fmtSales(item.sales) }}</span>
             </div>
-          </div>
-          <div class="i-price">
-            <div class="price-val">¥{{ item.price }}</div>
-            <div class="price-sold" v-if="item.sales">{{ fmtSales(item.sales) }} sold</div>
           </div>
         </div>
       </div>
@@ -134,7 +126,7 @@ onMounted(() => { loadCategories(); loadGoods() })
 
 /* ===== SIDEBAR ===== */
 .sidebar {
-  width: 170px; flex-shrink: 0; background: #16202d;
+  width: 190px; flex-shrink: 0; background: #16202d;
   border-right: 1px solid #1e2f40; padding: 16px 0;
   display: flex; flex-direction: column;
 }
@@ -180,38 +172,51 @@ onMounted(() => { loadCategories(); loadGoods() })
 .spin { width: 24px; height: 24px; border: 2px solid #1e2f40; border-top-color: #67c1f5; border-radius: 50%; animation: s .7s linear infinite; }
 @keyframes s { to{transform:rotate(360deg)} }
 
-/* ===== ITEM LIST ===== */
-.item-list { padding: 0 12px; }
-
-.list-header {
-  display: flex; align-items: center; padding: 8px 10px;
-  font-size: 10px; color: #4f6378; letter-spacing: 1px; text-transform: uppercase;
+/* ===== ITEM GRID ===== */
+.item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+  padding: 10px;
 }
-.h-img { width: 64px; }
-.h-name { flex: 1; }
-.h-price { width: 80px; text-align: right; }
 
-.item-row {
-  display: flex; align-items: center; padding: 6px 10px;
-  background: #1a2a3a; border-radius: 3px; margin-bottom: 2px;
-  cursor: pointer; transition: background .12s;
+.grid-card {
+  background: #1a2a3a;
   border: 1px solid transparent;
+  border-radius: 3px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all .12s;
 }
-.item-row:hover { background: #1e3348; border-color: #2a4a5e; }
+.grid-card:hover { background: #1e3348; border-color: #2a4a5e; }
 
-.i-img { width: 64px; height: 64px; flex-shrink: 0; border-radius: 3px; overflow: hidden; background: #0e1a26; }
-.i-img img { width: 100%; height: 100%; object-fit: cover; }
+.gc-img {
+  position: relative;
+  background: #0e1a26;
+}
+.gc-img img {
+  width: 100%; aspect-ratio: 1.3; object-fit: cover; display: block;
+}
 
-.i-info { flex: 1; margin-left: 12px; min-width: 0; }
-.i-name { font-size: 13px; color: #acb7c3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.i-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
-.tag-hot { background: #eb6f22; color: #1b2838; font-size: 9px; padding: 1px 5px; border-radius: 2px; font-weight: 700; }
-.tag-new { background: #67c1f5; color: #1b2838; font-size: 9px; padding: 1px 5px; border-radius: 2px; font-weight: 700; }
-.i-cat { font-size: 11px; color: #4f6378; }
+.tag-hot {
+  position: absolute; top: 4px; left: 4px;
+  background: #eb6f22; color: #1b2838; font-size: 9px;
+  padding: 1px 5px; border-radius: 2px; font-weight: 700;
+}
+.tag-new {
+  position: absolute; top: 4px; right: 4px;
+  background: #67c1f5; color: #1b2838; font-size: 9px;
+  padding: 1px 5px; border-radius: 2px; font-weight: 700;
+}
 
-.i-price { width: 80px; text-align: right; flex-shrink: 0; }
-.price-val { font-size: 14px; color: #a4d007; font-weight: 600; }
-.price-sold { font-size: 10px; color: #3d4f5f; margin-top: 2px; }
+.gc-info { padding: 6px 8px 8px; }
+.gc-name {
+  font-size: 12px; color: #acb7c3; line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.gc-row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px; }
+.gc-price { font-size: 13px; color: #a4d007; font-weight: 600; }
+.gc-sales { font-size: 10px; color: #3d4f5f; }
 
 .pagination-wrap { padding: 16px 0 32px; }
 </style>
