@@ -133,23 +133,25 @@ def order_pay(request):
 
 @api_view(['PUT'])
 def order_cancel(request, pk):
-    """取消订单"""
+    """取消订单 — 已完成/已取消的订单不可取消"""
     try:
         order = Order.objects.get(id=pk, member=request.user)
     except Order.DoesNotExist:
         return Response({'code': 3001, 'msg': '订单不存在'}, status=404)
 
-    if order.order_status != 0:
-        return Response({'code': 3002, 'msg': '订单状态不正确'}, status=400)
+    if order.order_status in (3, 4):
+        return Response({'code': 3002, 'msg': '该订单不可取消'}, status=400)
 
+    old_status = order.order_status
     order.order_status = 4
     order.save()
-    # 恢复库存
-    for detail in order.details.all():
-        detail.sku.stock += detail.quantity
-        detail.sku.save()
-        detail.goods.stock += detail.quantity
-        detail.goods.save()
+    # 恢复库存 (仅已付款的订单才需要恢复)
+    if old_status in (1, 2):
+        for detail in order.details.all():
+            detail.sku.stock += detail.quantity
+            detail.sku.save()
+            detail.goods.stock += detail.quantity
+            detail.goods.save()
 
     return Response({'code': 200, 'msg': '已取消'})
 
