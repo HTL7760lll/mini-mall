@@ -2,39 +2,77 @@
   <div class="steam-layout">
     <!-- 左侧栏 -->
     <aside class="sidebar">
-      <div class="side-logo">
-        <span class="c-o">M</span><span class="c-c">i</span><span class="c-y">n</span><span class="c-c">i</span>
-        <span class="c-g">M</span><span class="c-b">a</span><span class="c-p">ll</span>
+      <div class="side-head">
+        <div class="side-logo">
+          <span class="c-o">M</span><span class="c-c">i</span><span class="c-y">n</span><span class="c-c">i</span>
+          <span class="c-g">M</span><span class="c-b">a</span><span class="c-p">ll</span>
+        </div>
+        <div class="side-tagline">MARKET</div>
       </div>
 
-      <div class="side-label">CATEGORY</div>
-      <div class="side-item" :class="{sel: activeCategory===0}" @click="pickCat(0)">All Items</div>
-      <div class="side-item" v-for="c in topCategories" :key="c.id" :class="{sel: activeCategory===c.id}" @click="pickCat(c.id)">
-        {{ c.name }}
+      <div class="side-divider" />
+
+      <!-- 分类折叠 -->
+      <div class="sec-header" @click="showCat=!showCat">
+        <span>📂 CATEGORY</span>
+        <span class="sec-arrow" :class="{open: showCat}">▾</span>
+      </div>
+      <div class="sec-body" v-show="showCat">
+        <div class="side-item" :class="{sel: activeCategory===0}" @click="pickCat(0)">All Items</div>
+        <div class="side-item" v-for="c in topCategories" :key="c.id" :class="{sel: activeCategory===c.id}" @click="pickCat(c.id)">
+          {{ c.name }}
+        </div>
       </div>
 
-      <div class="side-label" style="margin-top:12px">BRAND</div>
-      <div class="side-item" v-for="c in brandCategories" :key="c.id" :class="{sel: activeCategory===c.id}" @click="pickCat(c.id)">
-        {{ c.name }}
+      <div class="side-divider" />
+
+      <!-- 品牌折叠 -->
+      <div class="sec-header" @click="showBrand=!showBrand">
+        <span>🏷️ BRAND</span>
+        <span class="sec-arrow" :class="{open: showBrand}">▾</span>
+      </div>
+      <div class="sec-body" v-show="showBrand">
+        <div class="side-item" v-for="c in brandCategories" :key="c.id" :class="{sel: activeCategory===c.id}" @click="pickCat(c.id)">
+          {{ c.name }}
+        </div>
       </div>
 
-      <div class="side-label" style="margin-top:12px">PRICE RANGE</div>
-      <div class="price-row">
-        <input v-model="minPrice" placeholder="Min" class="price-inp" @keyup.enter="applyPrice" />
-        <span class="price-dash">&mdash;</span>
-        <input v-model="maxPrice" placeholder="Max" class="price-inp" @keyup.enter="applyPrice" />
-      </div>
-      <button class="price-btn" @click="applyPrice">Apply</button>
-      <button class="price-btn reset" v-if="minPrice||maxPrice" @click="minPrice='';maxPrice='';applyPrice()">Reset</button>
+      <div class="side-divider" />
 
-      <div class="side-label" style="margin-top:12px">SORT</div>
-      <div class="side-item" :class="{sel: sort===''}" @click="setSort('')">Default</div>
-      <div class="side-item" :class="{sel: sort==='price_asc'}" @click="setSort('price_asc')">Price &#8593;</div>
-      <div class="side-item" :class="{sel: sort==='price_desc'}" @click="setSort('price_desc')">Price &#8595;</div>
-      <div class="side-item" :class="{sel: sort==='sales'}" @click="setSort('sales')">Best Selling</div>
+      <!-- 价格 -->
+      <div class="sec-header" @click="showPrice=!showPrice">
+        <span>💰 PRICE</span>
+        <span class="sec-arrow" :class="{open: showPrice}">▾</span>
+      </div>
+      <div class="sec-body" v-show="showPrice">
+        <div class="price-row">
+          <input v-model="minPrice" placeholder="Min" class="price-inp" @keyup.enter="applyPrice" />
+          <span class="price-dash">-</span>
+          <input v-model="maxPrice" placeholder="Max" class="price-inp" @keyup.enter="applyPrice" />
+        </div>
+        <div class="price-actions">
+          <button class="btn-sm" @click="applyPrice">Apply</button>
+          <button class="btn-sm ghost" v-if="minPrice||maxPrice" @click="minPrice='';maxPrice='';applyPrice()">Reset</button>
+        </div>
+      </div>
+
+      <div class="side-divider" />
+
+      <!-- 排序 -->
+      <div class="sec-header" @click="showSort=!showSort">
+        <span>🔽 SORT</span>
+        <span class="sec-arrow" :class="{open: showSort}">▾</span>
+      </div>
+      <div class="sec-body" v-show="showSort">
+        <div class="side-item" :class="{sel: sort===''}" @click="setSort('')">Default</div>
+        <div class="side-item" :class="{sel: sort==='price_asc'}" @click="setSort('price_asc')">Price ↑</div>
+        <div class="side-item" :class="{sel: sort==='price_desc'}" @click="setSort('price_desc')">Price ↓</div>
+        <div class="side-item" :class="{sel: sort==='sales'}" @click="setSort('sales')">Best Selling</div>
+      </div>
 
       <div class="side-footer">
-        <div class="footer-text">Mini Mall v1.0</div>
+        <div class="copy">Mini Mall v1.0</div>
+        <div class="copy-sub">© 2026</div>
       </div>
     </aside>
 
@@ -183,6 +221,11 @@ const handleLogout = () => {
 const menuOpen = ref(false)
 const closeMenu = () => { menuOpen.value = false }
 
+const showCat = ref(true)
+const showBrand = ref(true)
+const showPrice = ref(true)
+const showSort = ref(true)
+
 const userName = ref('')
 const checkLogin = () => {
   const raw = localStorage.getItem('user')
@@ -199,38 +242,45 @@ onMounted(() => { loadCategories(); loadGoods(); checkLogin() })
 
 /* ===== SIDEBAR ===== */
 .sidebar {
-  width: 190px; flex-shrink: 0; background: #16202d;
-  border-right: 1px solid #1e2f40; padding: 16px 0;
+  width: 190px; flex-shrink: 0; background: linear-gradient(180deg, #16202d 0%, #141c28 100%);
+  border-right: 1px solid #1e2f40;
   display: flex; flex-direction: column;
 }
-.side-logo { text-align: center; font-size: 18px; font-weight: 800; letter-spacing: -1px; margin-bottom: 18px; }
+.side-logo { font-size: 20px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
 .c-o{color:#eb6f22}.c-c{color:#67c1f5}.c-y{color:#d4b83b}
 .c-g{color:#5c7e10}.c-b{color:#2f7798}.c-p{color:#76428a}
 
-.side-label { font-size: 10px; color: #eb6f22; padding: 0 14px 6px; letter-spacing: 2px; font-weight: 600; text-transform: uppercase; }
-.side-item {
-  padding: 6px 14px; font-size: 12px; color: #7a8a9a; cursor: pointer;
-  border-left: 2px solid transparent; transition: all .12s;
-}
-.side-item:hover { color: #acb7c3; background: rgba(255,255,255,.03); }
-.side-item.sel { color: #67c1f5; border-left-color: #67c1f5; background: rgba(103,193,245,.06); }
+.side-tagline { font-size: 10px; color: #4f6378; letter-spacing: 4px; text-transform: uppercase; }
+.side-head { padding: 20px 16px 14px; text-align: center; background: linear-gradient(180deg, rgba(103,193,245,.05) 0%, transparent 100%); }
+.side-divider { height: 1px; background: linear-gradient(90deg, transparent, #1e2f40 20%, #1e2f40 80%, transparent); }
 
-/* Price filter */
-.price-row { display: flex; align-items: center; gap: 4px; padding: 6px 14px; }
-.price-inp {
-  width: 100%; padding: 4px 6px; background: #1a2a3a; border: 1px solid #1e2f40; border-radius: 3px;
-  color: #acb7c3; font-size: 11px; outline: none;
+.sec-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px 6px; cursor: pointer; user-select: none;
+  font-size: 10px; color: #eb6f22; letter-spacing: 1.5px; font-weight: 600;
 }
-.price-inp:focus { border-color: #67c1f5; }
+.sec-header:hover { color: #ff8a5c; }
+.sec-arrow { font-size: 10px; color: #4f6378; transition: transform .2s; }
+.sec-arrow.open { transform: rotate(180deg); }
+.sec-body { padding-bottom: 4px; }
+
+.side-item {
+  padding: 7px 14px 7px 18px; font-size: 12px; color: #7a8a9a; cursor: pointer;
+  border-left: 2px solid transparent; transition: all .15s;
+}
+.side-item:hover { color: #c9d1d9; background: rgba(103,193,245,.04); }
+.side-item.sel { color: #67c1f5; border-left-color: #67c1f5; background: linear-gradient(90deg, rgba(103,193,245,.08) 0%, transparent 100%); }
+
+.price-row { display: flex; align-items: center; gap: 6px; padding: 4px 14px; }
+.price-inp { flex: 1; padding: 6px 8px; background: #1a2a3a; border: 1px solid #1e2f40; border-radius: 4px; color: #acb7c3; font-size: 11px; outline: none; min-width: 0; }
+.price-inp:focus { border-color: #67c1f5; box-shadow: 0 0 0 2px rgba(103,193,245,.1); }
 .price-inp::placeholder { color: #3d4f5f; }
-.price-dash { color: #4f6378; font-size: 11px; }
-.price-btn {
-  margin: 6px 14px 0; padding: 4px 0; width: calc(100% - 28px);
-  background: #1a2a3a; border: 1px solid #1e2f40; border-radius: 3px;
-  color: #acb7c3; font-size: 11px; cursor: pointer;
-}
-.price-btn:hover { border-color: #67c1f5; color: #67c1f5; }
-.price-btn.reset { background: none; border: none; color: #4f6378; margin-top: 2px; font-size: 10px; }
+.price-dash { color: #4f6378; font-size: 12px; flex-shrink: 0; }
+.price-actions { display: flex; gap: 6px; padding: 6px 14px 2px; }
+.btn-sm { flex: 1; padding: 5px 0; background: #67c1f5; border: none; border-radius: 4px; color: #1b2838; font-size: 11px; font-weight: 600; cursor: pointer; }
+.btn-sm:hover { opacity: .85; }
+.btn-sm.ghost { background: none; border: 1px solid #1e2f40; color: #4f6378; }
+.btn-sm.ghost:hover { border-color: #4f6378; color: #acb7c3; }
 
 .side-footer { margin-top: auto; padding: 14px 14px 0; border-top: 1px solid #1e2f40; }
 .user-entry { font-size: 11px; color: #4f6378; cursor: pointer; }
@@ -283,7 +333,9 @@ onMounted(() => { loadCategories(); loadGoods(); checkLogin() })
 .drop-item.logout { color: #eb6f22; }
 .drop-item.logout:hover { color: #ff4444; }
 
-.footer-text { font-size: 11px; color: #3d4f5f; }
+.side-footer { margin-top: auto; padding: 16px 14px; text-align: center; background: linear-gradient(0deg, rgba(0,0,0,.2) 0%, transparent 100%); }
+.copy { font-size: 10px; color: #4f6378; }
+.copy-sub { font-size: 9px; color: #3d4f5f; margin-top: 2px; }
 
 .loading { display: flex; justify-content: center; padding: 60px 0; }
 .spin { width: 24px; height: 24px; border: 2px solid #1e2f40; border-top-color: #67c1f5; border-radius: 50%; animation: s .7s linear infinite; }
