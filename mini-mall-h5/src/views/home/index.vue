@@ -247,7 +247,7 @@ onMounted(() => { loadCategories(); loadGoods(); checkLogin() })
 .search-inner {
   display: flex; align-items: center; background: #1a2a3a;
   border: 1px solid #1e2f40; border-radius: 3px; padding: 5px 10px;
-  flex: 1; max-width: 400px;
+  flex: 1; max-width: 600px;
 }
 .search-inner:hover { border-color: #67c1f5; }
 .s-icon { color: #4f6378; margin-right: 6px; font-size: 14px; }
