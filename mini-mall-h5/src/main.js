@@ -24,4 +24,14 @@ vantComponents.forEach(comp => app.component(comp.name || comp.__name, comp))
 
 app.use(createPinia())
 app.use(router)
+
+// 点击外部关闭指令
+app.directive('click-outside', {
+  mounted(el, binding) {
+    el._clickOutside = (e) => { if (!el.contains(e.target)) binding.value() }
+    document.addEventListener('click', el._clickOutside)
+  },
+  unmounted(el) { document.removeEventListener('click', el._clickOutside) },
+})
+
 app.mount('#app')

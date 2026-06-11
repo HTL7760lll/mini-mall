@@ -34,22 +34,37 @@
       <div class="side-item" :class="{sel: sort==='sales'}" @click="setSort('sales')">Best Selling</div>
 
       <div class="side-footer">
-        <div class="user-entry" @click="goLogin">
-          <template v-if="userName">&#9786; {{ userName }}</template>
-          <template v-else>&#9787; SIGN IN</template>
-        </div>
+        <div class="footer-text">Mini Mall v1.0</div>
       </div>
     </aside>
 
     <!-- 右侧主区 -->
     <div class="main">
-      <!-- 搜索栏 -->
+      <!-- 顶栏: 搜索 + 用户菜单 -->
       <div class="search-bar">
         <div class="search-inner">
           <span class="s-icon">&#8981;</span>
           <input v-model="keyword" placeholder="Search the market" @keyup.enter="onSearch" />
         </div>
         <div class="result-info">{{ total }} results</div>
+        <div class="user-menu" v-click-outside="closeMenu">
+          <div class="user-trigger" @click="menuOpen=!menuOpen">
+            <span class="u-icon">{{ userName ? '&#9786;' : '&#9787;' }}</span>
+            <span class="u-label">{{ userName || 'LOGIN' }}</span>
+          </div>
+          <div class="user-drop" v-if="menuOpen">
+            <template v-if="userName">
+              <div class="drop-item" @click="goOrders">📋 我的订单</div>
+              <div class="drop-item" @click="goCart">🛒 购物车</div>
+              <div class="drop-divider" />
+              <div class="drop-item logout" @click="handleLogout">↪ 退出登录</div>
+            </template>
+            <template v-else>
+              <div class="drop-item" @click="goLogin">🔑 登录</div>
+              <div class="drop-item" @click="goRegister">📝 注册</div>
+            </template>
+          </div>
+        </div>
       </div>
 
       <!-- 加载 -->
@@ -154,7 +169,19 @@ const setSort = (s) => { sort.value = s; currentPage.value = 1; loadGoods() }
 const onSearch = () => { currentPage.value = 1; loadGoods() }
 const onPageChange = (p) => { currentPage.value = p; loadGoods() }
 const goDetail = (id) => router.push(`/goods/${id}`)
-const goLogin = () => router.push('/login')
+const goLogin = () => { menuOpen.value = false; router.push('/login') }
+const goRegister = () => { menuOpen.value = false; router.push('/register') }
+const goOrders = () => { menuOpen.value = false; router.push('/orders') }
+const goCart = () => { menuOpen.value = false; router.push('/cart') }
+const handleLogout = () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+  userName.value = ''
+  menuOpen.value = false
+}
+
+const menuOpen = ref(false)
+const closeMenu = () => { menuOpen.value = false }
 
 const userName = ref('')
 const checkLogin = () => {
@@ -230,6 +257,33 @@ onMounted(() => { loadCategories(); loadGoods(); checkLogin() })
 }
 .search-inner input::placeholder { color: #3d4f5f; }
 .result-info { margin-left: 16px; font-size: 12px; color: #4f6378; white-space: nowrap; }
+
+/* User Menu */
+.user-menu { position: relative; margin-left: auto; }
+.user-trigger {
+  display: flex; align-items: center; gap: 5px; padding: 4px 10px;
+  background: #16202d; border: 1px solid #1e2f40; border-radius: 3px;
+  cursor: pointer; white-space: nowrap;
+}
+.user-trigger:hover { border-color: #67c1f5; }
+.u-icon { font-size: 14px; }
+.u-label { font-size: 12px; color: #acb7c3; }
+
+.user-drop {
+  position: absolute; top: 100%; right: 0; margin-top: 4px;
+  background: #16202d; border: 1px solid #1e2f40; border-radius: 4px;
+  min-width: 150px; z-index: 50; overflow: hidden;
+}
+.drop-item {
+  padding: 10px 16px; font-size: 13px; color: #acb7c3; cursor: pointer;
+  transition: background .12s;
+}
+.drop-item:hover { background: #1e3348; color: #67c1f5; }
+.drop-divider { height: 1px; background: #1e2f40; margin: 4px 0; }
+.drop-item.logout { color: #eb6f22; }
+.drop-item.logout:hover { color: #ff4444; }
+
+.footer-text { font-size: 11px; color: #3d4f5f; }
 
 .loading { display: flex; justify-content: center; padding: 60px 0; }
 .spin { width: 24px; height: 24px; border: 2px solid #1e2f40; border-top-color: #67c1f5; border-radius: 50%; animation: s .7s linear infinite; }

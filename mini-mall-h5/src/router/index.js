@@ -5,6 +5,8 @@ const routes = [
   { path: '/goods/:id', name: 'goodsDetail', component: () => import('../views/goods/detail.vue'), meta: { title: '商品详情' } },
   { path: '/login', name: 'login', component: () => import('../views/member/login.vue'), meta: { title: '登录' } },
   { path: '/register', name: 'register', component: () => import('../views/member/register.vue'), meta: { title: '注册' } },
+  { path: '/orders', name: 'orders', component: () => import('../views/order/list.vue'), meta: { title: '我的订单', auth: true } },
+  { path: '/cart', name: 'cart', component: () => import('../views/cart/index.vue'), meta: { title: '购物车', auth: true } },
 ]
 
 const router = createRouter({
@@ -15,7 +17,11 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   document.title = to.meta.title || 'Mini Mall'
-  next()
+  if (to.meta.auth && !localStorage.getItem('token')) {
+    next('/login')
+  } else {
+    next()
+  }
 })
 
 export default router
