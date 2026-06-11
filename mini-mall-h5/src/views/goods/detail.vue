@@ -1,330 +1,215 @@
 <template>
-  <div class="detail-page">
-    <!-- 导航栏 -->
-    <van-nav-bar title="商品详情" left-text="返回" left-arrow fixed placeholder @click-left="goBack" />
+  <div class="detail-page" v-if="!loading">
+    <header class="topbar">
+      <span class="back" @click="$router.back()">&#8592; 返回</span>
+      <span class="title">商品详情</span>
+    </header>
 
-    <!-- 加载中 -->
-    <div v-if="loading" class="loading-wrap">
-      <van-loading size="24" vertical>加载中...</van-loading>
-    </div>
-
-    <template v-else-if="goods">
-    <div class="detail-container">
-      <!-- 大图 -->
-      <div class="main-image-wrap">
-        <van-image
-          :src="goods.main_image || 'https://picsum.photos/seed/default/400/400'"
-          fit="cover"
-          width="100%"
-          height="320"
-        />
-      </div>
-
-      <!-- 商品基本信息 -->
-      <div class="info-section">
-        <!-- 标签 -->
-        <div class="info-tags">
-          <van-tag v-if="goods.is_hot" type="danger" size="medium">Hot</van-tag>
-          <van-tag v-if="goods.is_new" type="primary" size="medium" style="margin-left:6px">New</van-tag>
-          <span class="info-category" v-if="goods.category_name">{{ goods.category_name }}</span>
+    <template v-if="goods">
+      <div class="detail-body">
+        <!-- 左侧: 大图 -->
+        <div class="left-panel">
+          <img :src="`https://picsum.photos/400/400?random=${goods.id}`" class="main-img" />
         </div>
 
-        <!-- 名称 -->
-        <h1 class="info-name">{{ goods.name }}</h1>
+        <!-- 右侧: 信息 + 购买 -->
+        <div class="right-panel">
+          <div class="info-section">
+            <!-- 标签 -->
+            <div class="tags">
+              <span v-if="goods.is_hot" class="tag-hot">HOT</span>
+              <span v-if="goods.is_new" class="tag-new">NEW</span>
+              <span class="tag-cat" v-if="goods.category_name">{{ goods.category_name }}</span>
+            </div>
 
-        <!-- 副标题/描述 -->
-        <p class="info-subtitle" v-if="goods.subtitle">{{ goods.subtitle }}</p>
+            <!-- 名称 -->
+            <h1 class="p-name">{{ goods.name }}</h1>
+            <p class="p-sub" v-if="goods.subtitle">{{ goods.subtitle }}</p>
 
-        <!-- 价格 -->
-        <div class="info-price">
-          <span class="price-current">¥{{ selectedSku ? selectedSku.price : goods.price }}</span>
-          <span class="price-original" v-if="goods.original_price">¥{{ goods.original_price }}</span>
-        </div>
+            <!-- 价格 -->
+            <div class="p-price">
+              <span class="price-now">¥{{ selectedSku ? selectedSku.price : goods.price }}</span>
+              <span class="price-old" v-if="goods.original_price">¥{{ goods.original_price }}</span>
+            </div>
 
-        <!-- 库存 -->
-        <div class="info-stock">
-          <span v-if="selectedSku">
-            库存: <span :class="selectedSku.stock > 0 ? 'in-stock' : 'out-stock'">{{ selectedSku.stock }}</span> 件
-          </span>
-          <span v-else>总库存: {{ goods.stock }} 件</span>
-          <span class="info-sales" v-if="goods.sales"> | 已售 {{ goods.sales }}</span>
-        </div>
-      </div>
+            <!-- 库存 -->
+            <div class="p-stock">
+              库存:
+              <span :class="selectedSku?.stock > 0 ? 'in' : 'out'">
+                {{ selectedSku ? selectedSku.stock : goods.stock }} 件
+              </span>
+              <span class="sold" v-if="goods.sales"> | 已售 {{ goods.sales }}</span>
+            </div>
+          </div>
 
-      <!-- SKU 选择 -->
-      <div class="sku-section" v-if="goods.skus && goods.skus.length > 0">
-        <div class="section-title">选择规格</div>
-        <div class="sku-list">
-          <div
-            v-for="sku in goods.skus"
-            :key="sku.id"
-            class="sku-item"
-            :class="{ active: selectedSku?.id === sku.id, disabled: sku.stock <= 0 }"
-            @click="selectSku(sku)"
-          >
-            <span>{{ sku.specs }}</span>
-            <span class="sku-price" v-if="sku.price !== goods.price">¥{{ sku.price }}</span>
+          <!-- SKU -->
+          <div class="sku-section" v-if="goods.skus?.length">
+            <div class="sku-label">规格</div>
+            <div class="sku-list">
+              <div
+                v-for="sku in goods.skus" :key="sku.id"
+                class="sku-box"
+                :class="{sel: selectedSku?.id === sku.id, off: sku.stock <= 0}"
+                @click="selectSku(sku)"
+              >
+                {{ sku.specs }}
+                <span class="sku-diff" v-if="sku.price !== goods.price">{{ sku.price > goods.price ? '+' : '' }}¥{{ (sku.price - goods.price).toFixed(0) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 数量 + 加购 -->
+          <div class="buy-row">
+            <div class="qty-ctrl">
+              <button class="q-btn" @click="qty = Math.max(1, qty - 1)">-</button>
+              <span class="q-val">{{ qty }}</span>
+              <button class="q-btn" @click="qty = Math.min(selectedSku?.stock || 1, qty + 1)">+</button>
+            </div>
+            <button class="add-cart-btn" :disabled="!selectedSku || selectedSku.stock <= 0" @click="handleAddCart">
+              {{ !selectedSku ? '请选规格' : selectedSku.stock <= 0 ? '已售罄' : '加入购物车' }}
+            </button>
+          </div>
+
+          <!-- 商品详情描述 -->
+          <div class="desc-section" v-if="goods.detail">
+            <div class="desc-title">商品详情</div>
+            <div class="desc-content" v-html="goods.detail" />
           </div>
         </div>
       </div>
-
-      <!-- 商品详情（富文本） -->
-      <div class="detail-section" v-if="goods.detail">
-        <div class="section-title">商品详情</div>
-        <div class="detail-content" v-html="goods.detail" />
-      </div>
-
-      <!-- 底部安全占位 -->
-      <div style="height: 80px" />
-    </div>
     </template>
 
-    <!-- 空状态 -->
-    <van-empty v-else description="商品不存在" />
+    <div v-else class="empty">商品不存在</div>
+  </div>
 
-    <!-- 底部操作栏 -->
-    <div class="bottom-bar" v-if="goods">
-      <van-stepper v-model="quantity" :min="1" :max="selectedSku?.stock || 1" integer />
-      <van-button
-        type="danger"
-        size="large"
-        round
-        block
-        class="cart-btn"
-        :disabled="!selectedSku || selectedSku.stock <= 0"
-        @click="addCart"
-      >
-        加入购物车
-      </van-button>
-    </div>
+  <div v-else class="detail-page">
+    <div class="loading"><div class="spin" /></div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { showToast } from 'vant'
-import { getGoodsDetail, addToCart } from '../../api/goods'
+import request from '../../api/request'
 
 const route = useRoute()
-const router = useRouter()
-
 const goods = ref(null)
-const loading = ref(false)
+const loading = ref(true)
 const selectedSku = ref(null)
-const quantity = ref(1)
+const qty = ref(1)
 
 const loadDetail = async () => {
-  loading.value = true
   try {
-    const data = await getGoodsDetail(route.params.id)
+    const data = await request.get(`/goods/detail/${route.params.id}/`)
     goods.value = data
-    // 自动选第一个有库存的 SKU
     if (data.skus?.length) {
-      const inStock = data.skus.find(s => s.stock > 0)
-      if (inStock) selectedSku.value = inStock
+      const s = data.skus.find(x => x.stock > 0)
+      if (s) selectedSku.value = s
     }
-  } catch (e) {
-    console.error('加载商品详情失败:', e)
-    showToast('加载失败')
-  } finally {
-    loading.value = false
-  }
+  } catch (e) { console.error(e); showToast('加载失败') }
+  finally { loading.value = false }
 }
 
 const selectSku = (sku) => {
   if (sku.stock <= 0) return
   selectedSku.value = sku
-  quantity.value = 1
+  qty.value = 1
 }
 
-const addCart = async () => {
-  if (!selectedSku.value) {
-    showToast('请选择商品规格')
-    return
-  }
+const handleAddCart = async () => {
+  if (!selectedSku.value) return showToast('请选择规格')
   const token = localStorage.getItem('token')
-  if (!token) {
-    showToast('请先登录')
-    return
-  }
+  if (!token) return showToast('请先登录')
   try {
-    await addToCart({
+    await request.post('/cart/add/', {
       goods_id: goods.value.id,
       sku_id: selectedSku.value.id,
-      quantity: quantity.value,
+      quantity: qty.value,
     })
     showToast('已加入购物车')
-  } catch (e) {
-    console.error('加入购物车失败:', e)
-  }
-}
-
-const goBack = () => {
-  router.back()
+  } catch (e) { console.error(e) }
 }
 
 onMounted(loadDetail)
 </script>
 
 <style scoped>
-.detail-page {
-  background: #f5f5f5;
-  min-height: 100vh;
-}
+.detail-page { min-height: 100vh; background: #1b2838; }
 
-/* 3/5 居中容器 */
-.detail-container {
-  width: 60%;
-  margin: 0 auto;
-  max-width: 500px;
+.topbar {
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+  background: #16202d; border-bottom: 1px solid #1e2f40;
+  position: sticky; top: 0; z-index: 10;
 }
-}
+.back { color: #67c1f5; cursor: pointer; font-size: 14px; }
+.title { color: #acb7c3; font-size: 14px; font-weight: 600; }
 
-.loading-wrap {
-  display: flex;
-  justify-content: center;
-  padding: 80px 0;
-}
+.loading { display: flex; justify-content: center; padding: 120px 0; }
+.spin { width: 32px; height: 32px; border: 2px solid #1e2f40; border-top-color: #ff6b35; border-radius: 50%; animation: s .8s linear infinite; }
+@keyframes s { to{transform:rotate(360deg)} }
 
-/* 大图 */
-.main-image-wrap {
-  background: #fff;
-}
+.empty { text-align: center; padding: 80px 0; color: #4f6378; }
 
-/* 基本信息 */
-.info-section {
-  background: #fff;
-  padding: 14px 16px;
-  margin-bottom: 10px;
+/* 左右两栏 */
+.detail-body {
+  display: flex; gap: 24px; padding: 20px; max-width: 960px;
 }
+.left-panel { flex-shrink: 0; width: 360px; }
+.main-img { width: 100%; border-radius: 6px; background: #0e1a26; display: block; }
 
-.info-tags {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-}
-.info-category {
-  font-size: 11px;
-  color: #999;
-  margin-left: 8px;
-  background: #f0f0f0;
-  border-radius: 3px;
-  padding: 1px 6px;
-}
+.right-panel { flex: 1; min-width: 0; }
 
-.info-name {
-  font-size: 20px;
-  font-weight: 700;
-  color: #111;
-  line-height: 1.4;
-  margin-bottom: 6px;
-}
+.info-section { margin-bottom: 20px; }
+.tags { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
+.tag-hot { background: #eb6f22; color: #1b2838; font-size: 10px; padding: 2px 7px; border-radius: 2px; font-weight: 700; }
+.tag-new { background: #67c1f5; color: #1b2838; font-size: 10px; padding: 2px 7px; border-radius: 2px; font-weight: 700; }
+.tag-cat { font-size: 11px; color: #4f6378; background: #1a2a3a; padding: 2px 8px; border-radius: 2px; }
 
-.info-subtitle {
-  font-size: 13px;
-  color: #888;
-  margin-bottom: 10px;
-  line-height: 1.5;
-}
+.p-name { font-size: 20px; color: #e6e6e6; font-weight: 700; line-height: 1.3; }
+.p-sub { font-size: 13px; color: #7a8a9a; margin-top: 6px; }
+.p-price { display: flex; align-items: baseline; gap: 10px; margin-top: 16px; }
+.price-now { font-size: 26px; color: #a4d007; font-weight: 700; }
+.price-old { font-size: 14px; color: #4f6378; text-decoration: line-through; }
+.p-stock { font-size: 13px; color: #7a8a9a; margin-top: 8px; }
+.in { color: #a4d007; } .out { color: #eb6f22; }
+.sold { color: #4f6378; }
 
-.info-price {
-  display: flex;
-  align-items: baseline;
-  margin-bottom: 8px;
+/* SKU */
+.sku-section { margin-bottom: 20px; }
+.sku-label { font-size: 13px; color: #acb7c3; font-weight: 600; margin-bottom: 8px; }
+.sku-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.sku-box {
+  padding: 7px 14px; border: 1px solid #1e2f40; border-radius: 4px;
+  font-size: 13px; color: #acb7c3; cursor: pointer; transition: all .15s;
+  background: #16202d;
 }
-.price-current {
-  font-size: 26px;
-  color: #ee0a24;
-  font-weight: 700;
-}
-.price-original {
-  font-size: 14px;
-  color: #ccc;
-  text-decoration: line-through;
-  margin-left: 10px;
-}
+.sku-box:hover { border-color: #67c1f5; }
+.sku-box.sel { border-color: #67c1f5; color: #67c1f5; background: rgba(103,193,245,.08); }
+.sku-box.off { color: #3d4f5f; border-color: #1e2f40; cursor: not-allowed; text-decoration: line-through; opacity: .5; }
+.sku-diff { font-size: 11px; color: #a4d007; margin-left: 4px; }
 
-.info-stock {
-  font-size: 13px;
-  color: #666;
+/* 购买 */
+.buy-row { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.qty-ctrl { display: flex; align-items: center; border: 1px solid #1e2f40; border-radius: 4px; overflow: hidden; }
+.q-btn {
+  width: 34px; height: 34px; background: #1a2a3a; border: none;
+  color: #acb7c3; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
-.in-stock { color: #07c160; }
-.out-stock { color: #ee0a24; }
-.info-sales { color: #bbb; }
+.q-btn:hover { background: #1e3348; }
+.q-val { width: 44px; text-align: center; font-size: 15px; color: #acb7c3; font-weight: 600; }
 
-/* SKU 选择 */
-.sku-section {
-  background: #fff;
-  padding: 14px 16px;
-  margin-bottom: 10px;
+.add-cart-btn {
+  flex: 1; padding: 10px 0; background: linear-gradient(135deg, #a4d007, #5c7e10);
+  border: none; border-radius: 4px; color: #1b2838; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: opacity .15s;
 }
-.section-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 10px;
-}
-.sku-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.sku-item {
-  padding: 6px 14px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 13px;
-  color: #333;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: #fafafa;
-}
-.sku-item .sku-price {
-  color: #ee0a24;
-  margin-left: 6px;
-  font-size: 12px;
-}
-.sku-item.active {
-  border-color: #ee0a24;
-  color: #ee0a24;
-  background: #fff5f5;
-}
-.sku-item.disabled {
-  color: #ccc;
-  background: #f5f5f5;
-  cursor: not-allowed;
-}
+.add-cart-btn:hover { opacity: .9; }
+.add-cart-btn:disabled { opacity: .3; cursor: not-allowed; background: #1e2f40; color: #4f6378; }
 
-/* 商品详情 */
-.detail-section {
-  background: #fff;
-  padding: 14px 16px;
-}
-.detail-content {
-  font-size: 14px;
-  color: #555;
-  line-height: 1.8;
-}
-.detail-content :deep(img) {
-  max-width: 100%;
-}
-
-/* 底部操作栏 */
-.bottom-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #fff;
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
-  z-index: 100;
-}
-.cart-btn {
-  flex: 1;
-}
+/* 描述 */
+.desc-section { border-top: 1px solid #1e2f40; padding-top: 20px; }
+.desc-title { font-size: 14px; color: #acb7c3; font-weight: 600; margin-bottom: 12px; }
+.desc-content { font-size: 13px; color: #7a8a9a; line-height: 1.8; }
+.desc-content :deep(img) { max-width: 100%; border-radius: 4px; }
 </style>
