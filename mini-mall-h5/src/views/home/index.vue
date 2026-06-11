@@ -34,7 +34,10 @@
       <div class="side-item" :class="{sel: sort==='sales'}" @click="setSort('sales')">Best Selling</div>
 
       <div class="side-footer">
-        <div class="user-entry" @click="goLogin">&#9786; SIGN IN</div>
+        <div class="user-entry" @click="goLogin">
+          <template v-if="userName">&#9786; {{ userName }}</template>
+          <template v-else>&#9787; SIGN IN</template>
+        </div>
       </div>
     </aside>
 
@@ -153,7 +156,15 @@ const onPageChange = (p) => { currentPage.value = p; loadGoods() }
 const goDetail = (id) => router.push(`/goods/${id}`)
 const goLogin = () => router.push('/login')
 
-onMounted(() => { loadCategories(); loadGoods() })
+const userName = ref('')
+const checkLogin = () => {
+  const raw = localStorage.getItem('user')
+  if (raw) {
+    try { userName.value = JSON.parse(raw).nickname || JSON.parse(raw).email || '' }
+    catch { userName.value = '' }
+  }
+}
+onMounted(() => { loadCategories(); loadGoods(); checkLogin() })
 </script>
 
 <style scoped>
