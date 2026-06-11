@@ -1,7 +1,10 @@
 <template>
   <div class="detail-page" v-if="!loading">
     <header class="topbar">
-      <span class="back" @click="$router.back()">&#8592; 返回</span>
+      <div class="back-btn" @click="$router.back()">
+        <span class="back-arrow">&#8592;</span>
+        <span class="back-text">返回</span>
+      </div>
       <span class="title">商品详情</span>
     </header>
 
@@ -142,7 +145,15 @@ onMounted(loadDetail)
   background: #16202d; border-bottom: 1px solid #1e2f40;
   position: sticky; top: 0; z-index: 10;
 }
-.back { color: #67c1f5; cursor: pointer; font-size: 14px; }
+.back-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; background: rgba(103,193,245,.08);
+  border: 1px solid #1e2f40; border-radius: 4px;
+  cursor: pointer; transition: all .15s;
+}
+.back-btn:hover { border-color: #67c1f5; background: rgba(103,193,245,.12); }
+.back-arrow { font-size: 18px; color: #67c1f5; }
+.back-text { font-size: 13px; color: #67c1f5; }
 .title { color: #acb7c3; font-size: 14px; font-weight: 600; }
 
 .loading { display: flex; justify-content: center; padding: 120px 0; }
