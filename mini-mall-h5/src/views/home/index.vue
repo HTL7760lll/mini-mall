@@ -242,11 +242,11 @@ onMounted(() => { loadCategories(); loadGoods(); checkLogin() })
 
 /* ===== SIDEBAR ===== */
 .sidebar {
-  width: 190px; flex-shrink: 0; background: linear-gradient(180deg, #16202d 0%, #141c28 100%);
+  width: 210px; flex-shrink: 0; background: linear-gradient(180deg, #16202d 0%, #141c28 100%);
   border-right: 1px solid #1e2f40;
   display: flex; flex-direction: column;
 }
-.side-logo { font-size: 20px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
+.side-logo { font-size: 22px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
 .c-o{color:#eb6f22}.c-c{color:#67c1f5}.c-y{color:#d4b83b}
 .c-g{color:#5c7e10}.c-b{color:#2f7798}.c-p{color:#76428a}
 
@@ -257,7 +257,7 @@ onMounted(() => { loadCategories(); loadGoods(); checkLogin() })
 .sec-header {
   display: flex; justify-content: space-between; align-items: center;
   padding: 10px 14px 6px; cursor: pointer; user-select: none;
-  font-size: 10px; color: #eb6f22; letter-spacing: 1.5px; font-weight: 600;
+  font-size: 11px; color: #eb6f22; letter-spacing: 1.5px; font-weight: 600;
 }
 .sec-header:hover { color: #ff8a5c; }
 .sec-arrow { font-size: 10px; color: #4f6378; transition: transform .2s; }
@@ -265,7 +265,7 @@ onMounted(() => { loadCategories(); loadGoods(); checkLogin() })
 .sec-body { padding-bottom: 4px; }
 
 .side-item {
-  padding: 7px 14px 7px 18px; font-size: 12px; color: #7a8a9a; cursor: pointer;
+  padding: 8px 14px 8px 18px; font-size: 13px; color: #7a8a9a; cursor: pointer;
   border-left: 2px solid transparent; transition: all .15s;
 }
 .side-item:hover { color: #c9d1d9; background: rgba(103,193,245,.04); }
