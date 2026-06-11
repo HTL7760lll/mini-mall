@@ -6,17 +6,31 @@
         <span class="c-o">M</span><span class="c-c">i</span><span class="c-y">n</span><span class="c-c">i</span>
         <span class="c-g">M</span><span class="c-b">a</span><span class="c-p">ll</span>
       </div>
-      <div class="side-label">SHOWING</div>
+
+      <div class="side-label">CATEGORY</div>
       <div class="side-item" :class="{sel: activeCategory===0}" @click="pickCat(0)">All Items</div>
-      <div class="side-item" v-for="c in categories" :key="c.id"
-        :class="{sel: activeCategory===c.id}" @click="pickCat(c.id)">
+      <div class="side-item" v-for="c in topCategories" :key="c.id" :class="{sel: activeCategory===c.id}" @click="pickCat(c.id)">
         {{ c.name }}
       </div>
 
-      <div class="side-label" style="margin-top:16px">SORT BY</div>
+      <div class="side-label" style="margin-top:12px">BRAND</div>
+      <div class="side-item" v-for="c in brandCategories" :key="c.id" :class="{sel: activeCategory===c.id}" @click="pickCat(c.id)">
+        {{ c.name }}
+      </div>
+
+      <div class="side-label" style="margin-top:12px">PRICE RANGE</div>
+      <div class="price-row">
+        <input v-model="minPrice" placeholder="Min" class="price-inp" @keyup.enter="applyPrice" />
+        <span class="price-dash">&mdash;</span>
+        <input v-model="maxPrice" placeholder="Max" class="price-inp" @keyup.enter="applyPrice" />
+      </div>
+      <button class="price-btn" @click="applyPrice">Apply</button>
+      <button class="price-btn reset" v-if="minPrice||maxPrice" @click="minPrice='';maxPrice='';applyPrice()">Reset</button>
+
+      <div class="side-label" style="margin-top:12px">SORT</div>
       <div class="side-item" :class="{sel: sort===''}" @click="setSort('')">Default</div>
-      <div class="side-item" :class="{sel: sort==='price_asc'}" @click="setSort('price_asc')">Price: Low to High</div>
-      <div class="side-item" :class="{sel: sort==='price_desc'}" @click="setSort('price_desc')">Price: High to Low</div>
+      <div class="side-item" :class="{sel: sort==='price_asc'}" @click="setSort('price_asc')">Price &#8593;</div>
+      <div class="side-item" :class="{sel: sort==='price_desc'}" @click="setSort('price_desc')">Price &#8595;</div>
       <div class="side-item" :class="{sel: sort==='sales'}" @click="setSort('sales')">Best Selling</div>
 
       <div class="side-footer">
@@ -70,9 +84,12 @@ import { getGoodsPage, getCategoryTree } from '../../api/goods'
 
 const router = useRouter()
 const keyword = ref('')
-const categories = ref([])
+const topCategories = ref([])
+const brandCategories = ref([])
 const activeCategory = ref(0)
 const sort = ref('')
+const minPrice = ref('')
+const maxPrice = ref('')
 const goodsList = ref([])
 const loading = ref(false)
 const currentPage = ref(1)
@@ -88,12 +105,26 @@ const fmtSales = (n) => {
 const loadCategories = async () => {
   try {
     const data = await getCategoryTree()
-    const flat = []
+    const tops = []
+    const brands = []
     for (const p of data) {
-      if (p.children?.length) for (const c of p.children) { if (c.goods_count > 0) flat.push(c) }
-      if (p.goods_count > 0) flat.push(p)
+      if (p.children?.length) {
+        for (const c of p.children) {
+          if (c.goods_count > 0) {
+            if (c.children?.length) {
+              // 有子分类 = 品牌级
+              tops.push(c)
+              for (const b of c.children) { if (b.goods_count > 0) brands.push(b) }
+            } else {
+              tops.push(c)
+            }
+          }
+        }
+      }
+      if (p.goods_count > 0) tops.push(p)
     }
-    categories.value = flat
+    topCategories.value = tops
+    brandCategories.value = brands
   } catch (e) { console.error(e) }
 }
 
@@ -104,12 +135,16 @@ const loadGoods = async () => {
     if (keyword.value) params.keyword = keyword.value
     if (activeCategory.value > 0) params.categoryId = activeCategory.value
     if (sort.value) params.sort = sort.value
+    if (minPrice.value) params.minPrice = minPrice.value
+    if (maxPrice.value) params.maxPrice = maxPrice.value
     const data = await getGoodsPage(params)
     goodsList.value = data.records || []
     total.value = data.total || 0
   } catch (e) { console.error(e) }
   finally { loading.value = false }
 }
+
+const applyPrice = () => { currentPage.value = 1; loadGoods() }
 
 const pickCat = (id) => { activeCategory.value = id; currentPage.value = 1; loadGoods() }
 const setSort = (s) => { sort.value = s; currentPage.value = 1; loadGoods() }
@@ -142,12 +177,29 @@ onMounted(() => { loadCategories(); loadGoods() })
 .side-item:hover { color: #acb7c3; background: rgba(255,255,255,.03); }
 .side-item.sel { color: #67c1f5; border-left-color: #67c1f5; background: rgba(103,193,245,.06); }
 
+/* Price filter */
+.price-row { display: flex; align-items: center; gap: 4px; padding: 6px 14px; }
+.price-inp {
+  width: 100%; padding: 4px 6px; background: #1a2a3a; border: 1px solid #1e2f40; border-radius: 3px;
+  color: #acb7c3; font-size: 11px; outline: none;
+}
+.price-inp:focus { border-color: #67c1f5; }
+.price-inp::placeholder { color: #3d4f5f; }
+.price-dash { color: #4f6378; font-size: 11px; }
+.price-btn {
+  margin: 6px 14px 0; padding: 4px 0; width: calc(100% - 28px);
+  background: #1a2a3a; border: 1px solid #1e2f40; border-radius: 3px;
+  color: #acb7c3; font-size: 11px; cursor: pointer;
+}
+.price-btn:hover { border-color: #67c1f5; color: #67c1f5; }
+.price-btn.reset { background: none; border: none; color: #4f6378; margin-top: 2px; font-size: 10px; }
+
 .side-footer { margin-top: auto; padding: 14px 14px 0; border-top: 1px solid #1e2f40; }
 .user-entry { font-size: 11px; color: #4f6378; cursor: pointer; }
 .user-entry:hover { color: #67c1f5; }
 
 /* ===== MAIN ===== */
-.main { flex: 1; display: flex; flex-direction: column; }
+.main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
 
 /* Search Bar - Steam style */
 .search-bar {

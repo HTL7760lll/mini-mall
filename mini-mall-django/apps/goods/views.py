@@ -32,9 +32,23 @@ def goods_list(request):
 
     category_id = request.query_params.get('categoryId')
     if category_id:
-        queryset = queryset.filter(category_id=category_id)
+        # 支持子分类: 匹配当前分类及其子分类
+        sub_ids = list(GoodsCategory.objects.filter(parent_id=category_id, status=1, deleted=False)
+                       .values_list('id', flat=True))
+        sub_ids.append(int(category_id))
+        queryset = queryset.filter(category_id__in=sub_ids)
 
     keyword = request.query_params.get('keyword')
+    if keyword:
+        queryset = queryset.filter(name__icontains=keyword)
+
+    # 价格区间
+    min_price = request.query_params.get('minPrice')
+    max_price = request.query_params.get('maxPrice')
+    if min_price:
+        queryset = queryset.filter(price__gte=float(min_price))
+    if max_price:
+        queryset = queryset.filter(price__lte=float(max_price))
     if keyword:
         queryset = queryset.filter(name__icontains=keyword)
 
