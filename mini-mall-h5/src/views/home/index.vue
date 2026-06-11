@@ -1,55 +1,39 @@
 <template>
-  <div class="home-dark">
-    <!-- 侧边抽屉 -->
-    <div class="sidebar-overlay" :class="{show: sidebarOpen}" @click="sidebarOpen=false" />
-    <aside class="sidebar" :class="{open: sidebarOpen}">
-      <div class="side-head">
-        <div class="side-logo">
-          <span class="s-m">M</span><span class="s-i">i</span><span class="s-n">n</span><span class="s-i2">i</span>
-          <span class="s-m2">M</span><span class="s-a">a</span><span class="s-l">ll</span>
-        </div>
+  <div class="app-layout">
+    <!-- 侧边栏: 常驻 -->
+    <aside class="sidebar">
+      <div class="side-logo">
+        <span class="s-m">M</span><span class="s-i">i</span><span class="s-n">n</span><span class="s-i2">i</span>
+        <span class="s-m2">M</span><span class="s-a">a</span><span class="s-ll">ll</span>
       </div>
-      <div class="side-section">
-        <div class="side-label">CATEGORY</div>
-        <div class="side-item" :class="{active: activeCategory===0}" @click="pickCat(0)">全部</div>
-        <div class="side-item" v-for="c in categories" :key="c.id"
-          :class="{active: activeCategory===c.id}" @click="pickCat(c.id)">
-          {{ c.name }}
-          <span class="cat-count">{{ c.goods_count }}</span>
-        </div>
+      <div class="side-label">CATEGORY</div>
+      <div class="side-item" :class="{active: activeCategory===0}" @click="pickCat(0)">ALL</div>
+      <div class="side-item" v-for="c in categories" :key="c.id"
+        :class="{active: activeCategory===c.id}" @click="pickCat(c.id)">
+        {{ c.name }}
+      </div>
+      <div class="side-footer">
+        <div class="user-entry" @click="goLogin">&#9786; LOGIN</div>
       </div>
     </aside>
 
     <!-- 主内容 -->
-    <div class="main-area">
+    <div class="content-area">
       <!-- 顶栏 -->
       <header class="topbar">
-        <div class="menu-btn" @click="sidebarOpen=!sidebarOpen">
-          <span /><span /><span />
-        </div>
-        <div class="top-logo">
-          <span class="t-m">M</span><span class="t-i">i</span><span class="t-n">n</span><span class="t-i2">i</span>
-          <span class="t-m2">M</span><span class="t-a">a</span><span class="t-ll">ll</span>
-        </div>
-        <div class="top-right">
-          <div class="search-mini">
-            <input v-model="keyword" placeholder="Search" @keyup.enter="onSearch" />
-            <span class="search-icon" @click="onSearch">&#8981;</span>
-          </div>
-          <div class="user-btn" @click="goLogin">&#9786;</div>
+        <div class="search-box">
+          <input v-model="keyword" placeholder="SEARCH" @keyup.enter="onSearch" />
+          <span class="s-icon" @click="onSearch">&#8981;</span>
         </div>
       </header>
 
-      <!-- 内容区 -->
-      <div v-if="loading" class="loading-wrap">
-        <div class="spinner" />
-      </div>
+      <!-- 加载 -->
+      <div v-if="loading" class="loading-wrap"><div class="spinner" /></div>
 
-      <div v-else-if="goodsList.length" class="goods-grid">
+      <!-- 商品流 -->
+      <div v-else class="goods-flow">
         <GoodsCard v-for="item in goodsList" :key="item.id" :goods="item" @click="goDetail(item.id)" />
       </div>
-
-      <div v-else class="empty">No products found</div>
 
       <div v-if="total > pageSize" class="pagination-wrap">
         <van-pagination v-model="currentPage" :total-items="total" :items-per-page="pageSize" mode="simple" @change="onPageChange" />
@@ -65,7 +49,6 @@ import { getGoodsPage, getCategoryTree } from '../../api/goods'
 import GoodsCard from '../../components/GoodsCard.vue'
 
 const router = useRouter()
-const sidebarOpen = ref(false)
 const keyword = ref('')
 const categories = ref([])
 const activeCategory = ref(0)
@@ -100,7 +83,7 @@ const loadGoods = async () => {
   finally { loading.value = false }
 }
 
-const pickCat = (id) => { activeCategory.value = id; currentPage.value = 1; sidebarOpen.value = false; loadGoods() }
+const pickCat = (id) => { activeCategory.value = id; currentPage.value = 1; loadGoods() }
 const onSearch = () => { currentPage.value = 1; loadGoods() }
 const onPageChange = (p) => { currentPage.value = p; loadGoods() }
 const goDetail = (id) => router.push(`/goods/${id}`)
@@ -110,80 +93,56 @@ onMounted(() => { loadCategories(); loadGoods() })
 </script>
 
 <style scoped>
-.home-dark { display: flex; min-height: 100vh; background: #0d1117; }
+.app-layout { display: flex; min-height: 100vh; background: #0d1117; }
 
-/* SIDEBAR */
-.sidebar-overlay { position: fixed; inset:0; background: rgba(0,0,0,.5); z-index:90; opacity:0; pointer-events:none; transition: opacity .25s; }
-.sidebar-overlay.show { opacity:1; pointer-events:auto; }
+/* SIDEBAR - 常驻 */
 .sidebar {
-  position: fixed; top:0; left:0; bottom:0; width: 220px; z-index:95;
-  background: #161b22; border-right: 1px solid #21262d;
-  transform: translateX(-100%); transition: transform .25s;
-  display: flex; flex-direction: column; overflow-y: auto;
+  width: 140px; flex-shrink: 0;
+  background: #0d1117; border-right: 1px solid #21262d;
+  padding: 20px 0; display: flex; flex-direction: column;
+  position: sticky; top:0; height: 100vh; overflow-y: auto;
 }
-.sidebar.open { transform: translateX(0); }
+.side-logo { text-align: center; font-size: 18px; font-weight: 800; letter-spacing: -1px; margin-bottom: 20px; }
+.s-m{color:#ff6b35}.s-i,.s-i2{color:#00d4ff}.s-n{color:#ffd700}
+.s-m2{color:#4caf50}.s-a{color:#2196f3}.s-ll{color:#9c27b0}
 
-.side-head { padding: 20px 16px; border-bottom: 1px solid #21262d; }
-.side-logo { font-size: 22px; font-weight: 800; letter-spacing: -1px; }
-.s-m { color: #ff6b35; } .s-i,.s-i2 { color: #00d4ff; } .s-n { color: #ffd700; }
-.s-m2 { color: #4caf50; } .s-a { color: #2196f3; } .s-l { color: #9c27b0; }
-
-.side-section { padding: 12px 0; }
-.side-label { font-size: 10px; color: #ff6b35; padding: 8px 16px 4px; letter-spacing: 2px; font-weight: 600; }
+.side-label { font-size: 9px; color: #ff6b35; padding: 0 12px 8px; letter-spacing: 2px; font-weight: 600; }
 .side-item {
-  padding: 8px 16px; font-size: 13px; color: #8b949e; cursor: pointer;
-  display: flex; justify-content: space-between; align-items: center;
-  transition: background .15s; border-left: 2px solid transparent;
+  padding: 7px 12px; font-size: 12px; color: #8b949e; cursor: pointer;
+  border-left: 2px solid transparent; transition: all .15s;
 }
-.side-item:hover { background: #1c2128; color: #c9d1d9; }
-.side-item.active { background: #1c2128; color: #ff6b35; border-left-color: #ff6b35; }
-.cat-count { font-size: 10px; color: #484f58; background: #21262d; padding: 1px 6px; border-radius: 10px; }
+.side-item:hover { color: #c9d1d9; background: #161b22; }
+.side-item.active { color: #ff6b35; border-left-color: #ff6b35; background: rgba(255,107,53,.06); }
 
-/* MAIN */
-.main-area { flex:1; margin-left:0; width:100%; }
+.side-footer { margin-top: auto; padding: 16px 12px; border-top: 1px solid #21262d; }
+.user-entry { font-size: 11px; color: #484f58; cursor: pointer; }
+.user-entry:hover { color: #c9d1d9; }
 
-/* TOPBAR */
-.topbar {
-  display: flex; align-items: center; gap: 10px; padding: 8px 12px;
-  background: #161b22; border-bottom: 1px solid #21262d;
-  position: sticky; top:0; z-index:10;
+/* CONTENT */
+.content-area { flex: 1; display: flex; flex-direction: column; }
+
+.topbar { padding: 10px 14px; border-bottom: 1px solid #21262d; position: sticky; top:0; background: #0d1117; z-index:5; }
+.search-box { display: flex; align-items: center; border-bottom: 1px solid #21262d; padding: 4px 0; }
+.search-box input {
+  flex:1; background: none; border: none; outline: none; color: #c9d1d9;
+  font-size: 13px; letter-spacing: 1px;
 }
-.menu-btn { display: flex; flex-direction: column; gap:4px; cursor: pointer; padding: 4px; }
-.menu-btn span { display: block; width: 20px; height: 2px; background: #c9d1d9; border-radius: 1px; }
+.search-box input::placeholder { color: #30363d; }
+.s-icon { color: #484f58; cursor: pointer; font-size: 15px; }
 
-.top-logo { font-size: 18px; font-weight: 800; letter-spacing: -1px; }
-.t-m { color: #ff6b35; } .t-i,.t-i2 { color: #00d4ff; } .t-n { color: #ffd700; }
-.t-m2 { color: #4caf50; } .t-a { color: #2196f3; } .t-ll { color: #9c27b0; }
-
-.top-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
-.search-mini {
-  display: flex; align-items: center; background: #0d1117; border: 1px solid #30363d;
-  border-radius: 4px; padding: 3px 8px;
-}
-.search-mini input {
-  background: none; border: none; outline: none; color: #c9d1d9;
-  font-size: 12px; width: 100px;
-}
-.search-mini input::placeholder { color: #484f58; }
-.search-icon { color: #484f58; cursor: pointer; font-size: 14px; }
-.user-btn { color: #8b949e; font-size: 18px; cursor: pointer; }
-
-/* GRID */
-.goods-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: #21262d;
-  border: 1px solid #21262d;
-  margin: 12px 16px;
-}
 .loading-wrap { display: flex; justify-content: center; padding: 80px 0; }
-.spinner {
-  width: 32px; height: 32px; border: 3px solid #21262d;
-  border-top-color: #ff6b35; border-radius: 50%; animation: spin .8s linear infinite;
-}
+.spinner { width: 28px; height: 28px; border: 2px solid #21262d; border-top-color: #ff6b35; border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.empty { text-align: center; padding: 80px 0; color: #484f58; font-size: 13px; }
+
+/* 流式网格: 小格子自然排列填满 */
+.goods-flow {
+  display: flex; flex-wrap: wrap;
+  padding: 8px;
+}
+.goods-flow :deep(.goods-card) {
+  width: calc(25% - 4px);
+  margin: 2px;
+}
+
 .pagination-wrap { padding: 16px 0 32px; }
-.pagination-wrap :deep(.van-pagination__item) { background:#161b22; color:#8b949e; }
 </style>
