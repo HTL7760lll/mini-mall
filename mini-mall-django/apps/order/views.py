@@ -126,7 +126,7 @@ def order_pay(request):
 
     order.pay_status = 1
     order.pay_time = datetime.now()
-    order.order_status = 1  # 待发货
+    order.order_status = 2  # 模拟: 支付后自动发货, 进入待收货
     order.save()
     return Response({'code': 200, 'msg': '支付成功'})
 
