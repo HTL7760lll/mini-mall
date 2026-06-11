@@ -1,8 +1,8 @@
-from django.contrib.auth import authenticate
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import Member, Address
@@ -10,6 +10,14 @@ from .serializers import (
     RegisterSerializer, LoginSerializer,
     MemberInfoSerializer, AddressSerializer
 )
+
+
+class LoginRateThrottle(AnonRateThrottle):
+    rate = '5/min'  # 登录严格限流
+
+
+class RegisterRateThrottle(AnonRateThrottle):
+    rate = '3/min'  # 注册更严格
 
 
 def get_tokens_for_user(user):
@@ -22,6 +30,7 @@ def get_tokens_for_user(user):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([RegisterRateThrottle])
 def register(request):
     serializer = RegisterSerializer(data=request.data)
     if not serializer.is_valid():
@@ -42,6 +51,7 @@ def register(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([LoginRateThrottle])
 def login(request):
     serializer = LoginSerializer(data=request.data)
     if not serializer.is_valid():
